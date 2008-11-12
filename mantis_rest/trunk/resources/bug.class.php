@@ -110,9 +110,6 @@ class Bug extends Resource
 		$bug->description = $rsrc['description'];
 		$bug->steps_to_reproduce = $rsrc['steps_to_reproduce'];
 		$bug->additional_information = $rsrc['additional_information'];
-		foreach (get_object_vars($bug) as $k => $v) {
-			header("x-bug-stuff: $k: $v", FALSE);
-		}
 		return $bug;
 	}
 
