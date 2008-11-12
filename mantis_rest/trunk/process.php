@@ -16,7 +16,7 @@
 	}
 	$service->uid = user_get_id_by_name($service->username);
 	$service->gets = $_GET;
-	$service->posts = $_POSTS;
+	$service->posts = $_POST;
 
 	$service->handle();
 ?>
