@@ -27,11 +27,11 @@ class Bug extends Resource
 		 */
 		return array(
 			'project_id' => $row->project_id,
-			'reporter_id' => User::get_url_from_mantis_id($row->reporter_id),
-			'handler_id' => $row->handler_id ?
+			'reporter' => User::get_url_from_mantis_id($row->reporter_id),
+			'handler' => $row->handler_id ?
 				User::get_url_from_mantis_id($row->handler_id) :
 				"",
-			'duplicate_id' => $row->duplicate_id ?
+			'duplicate' => $row->duplicate_id ?
 				User::get_url_from_mantis_id($row->duplicate_id) :
 				"",
 			'priority' => get_enum_to_string(config_get('priority_enum_string'),
