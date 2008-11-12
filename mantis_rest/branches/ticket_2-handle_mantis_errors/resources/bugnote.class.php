@@ -109,15 +109,17 @@ class BugNote extends Resource
 		# Check if the current user is allowed to edit the bugnote
 		# (This comes from Mantis's bugnote_update.php)
 		$user_id = auth_get_current_user_id();
-		$reporter_id = bugnote_get_field( $f_bugnote_id, 'reporter_id' );
-		if ( ( $user_id != $reporter_id ) ||
-				( OFF == config_get( 'bugnote_allow_user_edit_delete' ) )) {
-			access_ensure_bugnote_level(
-				config_get( 'update_bugnote_threshold' ), $f_bugnote_id );
+		$reporter_id = bugnote_get_field($this->note_id, 'reporter_id');
+		$bug_id = bugnote_get_field( $this->note_id, 'bug_id' );
+		if (( $user_id != $reporter_id ) ||
+				(OFF == config_get('bugnote_allow_user_edit_delete'))) {
+			if (!access_has_bugnote_level(
+					config_get('update_bugnote_threshold'), $this->note_id)) {
+				http_error(403, "Access denied");
+			}
 		}
 
 		# Check if the bug is readonly
-		$bug_id = bugnote_get_field( $bugnote_id, 'bug_id' );
 		if (bug_is_readonly($bug_id)) {
 			http_error(403, "Access denied: bug is read-only.");
 		}
@@ -125,7 +127,7 @@ class BugNote extends Resource
 		$new_rep = file_get_contents('php://input');
 		$new_data = json_decode($new_rep, true);
 		$bugnote_data = BugNote::get_db_row_from_resource($new_data);
-		bugnote_set_text($this->note_id, $bugnote_data->note);
+		bugnote_set_text($this->note_id, $bugnote_data['note']);
 	}
 }
 ?>
