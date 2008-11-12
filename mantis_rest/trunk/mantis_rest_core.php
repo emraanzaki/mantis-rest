@@ -82,61 +82,6 @@ application/json");
 		abstract public function put();	# Handles a PUT request
 	}
 
-	class ResourceElement
-	{
-		/**
-		 * 	An element of a resource.
-		 *
-		 * 	This class handles the conversion between Mantis data and resource data.
-		 * 	You can specify $resource_cls, $enum_name, or neither.  Using both is not
-		 * 	supported.
-		 *
-		 * 	Specifying $resource_cls means that Mantis stores the value as the (integer)
-		 * 	ID of a database entity represented by the given class.  We will therefore
-		 * 	convert this ID to a URL for the representation, and convert a URL to a
-		 * 	Mantis ID when given a representation.
-		 *
-		 * 	If you specify $enum_name, it means that Mantis stores an integer for the
-		 * 	value, which is referenced in the given enumerator.  We'll convert the
-		 * 	integer to a word in the default language, and vice versa.
-		 *
-		 * 	@param $mantis_name - The name Mantis uses for this value (in its DB)
-		 * 	@param $outward_name - The name we use for this value in representations
-		 * 	@param $resource_cls - The name of the class of the resource
-		 * 	@param $enum_name - The name of the enumerator from which this data comes
-		 */
-		function __construct($mantis_name, $outward_name, $resource_cls = '',
-				     $enum_name = '')
-		{
-			$this->mantis_name = $mantis_name;
-			$this->outward_name = $outward_name;
-			$this->_resource_cls = $resource_cls;
-			$this->_enum_string = $enum_name ? config_get($enum_name) : '';
-		}
-
-		function mantis_to_resource($mantis_value) {
-			if ($this->_resource_cls) {
-				$func = "$this->_resource_cls::get_url_from_mantis_id";
-				return $func($mantis_value);
-			} else if($this->_enum_string) {
-				return get_enum_to_string($this->_enum_string, $mantis_value);
-			} else {
-				return $mantis_value;
-			}
-		}
-
-		function resource_to_mantis($resource_value) {
-			if ($this->_resource_cls) {
-				$func = "$this->_resource_cls::get_mantis_id_from_url";
-				return $func($resource_value);
-			} else if ($this->_enum_string) {
-				return get_string_to_enum($this->_enum_string, $resource_value);
-			} else {
-				return $resource_value;
-			}
-		}
-	}
-
 	class RestService
 	{
 		/**

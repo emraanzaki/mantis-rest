@@ -46,7 +46,7 @@ bug_body = """{"project_id":"1",
 "additional_information":"Oh noes!  A bug!"}"""
 note_body = """{"bug":"http:\/\/mantis.localhost\/rest\/bugs\/1",
 "reporter":"http:\/\/mantis.localhost\/rest\/2",
-"note":"Whoa, note.",
+"note":"Goddamn, note.",
 "private":false,
 "date_submitted":"2008-10-08 22:47:42",
 "last_modified":"2008-10-08 22:47:42"}"""
