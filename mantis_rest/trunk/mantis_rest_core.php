@@ -60,6 +60,12 @@ application/json");
 		return -1;
 	}
 
+	function handle_error($errno, $errstr)
+	{
+		http_error(500, "Mantis encountered an error: " . error_string($errstr));
+	}
+	set_error_handler("handle_error", E_USER_ERROR);
+
 	abstract class Resource
 	{
 		/**
