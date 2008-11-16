@@ -111,7 +111,7 @@ application/json");
 				$resource = new Bug($this->url);
 			} else if (preg_match('!/bugs/\d+/notes/?$!', $path)) {
 				$resource = new BugnoteList($this->url);
-			} else if (preg_match('!/notes/\d+/?$!', $path)) ||
+			} else if (preg_match('!/notes/\d+/?$!', $path) ||
 				   preg_match('!/bugs/\d+/notes/\d+/?$!', $path)) {
 				$resource = new Bugnote($this->url);
 			} else {
