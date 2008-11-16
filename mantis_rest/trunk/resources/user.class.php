@@ -41,6 +41,9 @@ class User extends Resource
 			return $this->rsrc_data[$attr_name] ? 1 : 0;
 		} elseif (in_array($attr_name, User::$mantis_attrs)) {
 			return ($this->rsrc_data[$attr_name]);
+		} elseif ($attr_name == 'access_level') {
+			return get_string_to_enum(config_get('access_levels_enum_string'),
+				$this->rsrc_data[$attr_name]);
 		} else {
 			http_error(415, "Unknown resource attribute: $attr_name");
 		}
@@ -52,6 +55,9 @@ class User extends Resource
 			return '********';
 		} elseif ($attr_name == 'enabled' || $attr_name == 'protected') {
 			return !!$this->mantis_data[$attr_name];
+		} elseif ($attr_name == 'access_level') {
+			return get_enum_to_string(config_get('access_levels_enum_string'),
+				$this->mantis_data['access_level']);
 		} else {
 			return $this->mantis_data[$attr_name];
 		}
