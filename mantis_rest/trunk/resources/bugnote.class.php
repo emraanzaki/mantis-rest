@@ -1,5 +1,5 @@
 <?php
-class BugNote extends Resource
+class Bugnote extends Resource
 {
 	/**
 	 *      A bug note.
@@ -35,7 +35,7 @@ class BugNote extends Resource
 		 *      @param $url - The URL with which this resource was requested
 		 */
 		$matches = array();
-		$this->note_id = BugNote::get_mantis_id_from_url($url);
+		$this->note_id = Bugnote::get_mantis_id_from_url($url);
 
 		$this->mantis_data = array();
 		$this->rsrc_data = array();
@@ -49,7 +49,7 @@ class BugNote extends Resource
 			return User::get_url_from_mantis_id($this->mantis_data['reporter_id']);
 		} elseif ($attr_name == 'private') {
 			return ($this->mantis_data['view_state'] == VS_PRIVATE);
-		} elseif (in_array($attr_name, BugNote::$rsrc_attrs)) {
+		} elseif (in_array($attr_name, Bugnote::$rsrc_attrs)) {
 			return $this->mantis_data[$attr_name];
 		} else {
 			http_error(415, "Unknown resource attribute: $attr_name");
@@ -64,7 +64,7 @@ class BugNote extends Resource
 			return User::get_mantis_id_from_url($this->rsrc_data['reporter']);
 		} elseif ($attr_name == 'view_state') {
 			return ($this->rsrc_data['private'] ? VS_PRIVATE : VS_PUBLIC);
-		} elseif (in_array($attr_name, BugNote::$mantis_attrs)) {
+		} elseif (in_array($attr_name, Bugnote::$mantis_attrs)) {
 			return $this->rsrc_data[$attr_name];
 		}
 	}
@@ -101,7 +101,7 @@ class BugNote extends Resource
 		for ($i = 0; $i < count($col_names); $i++) {
 			$this->mantis_data[$col_names[$i]] = $row[$i];
 		}
-		foreach (BugNote::$rsrc_attrs as $a) {
+		foreach (Bugnote::$rsrc_attrs as $a) {
 			$this->rsrc_data[$a] = $this->_get_rsrc_attr($a);
 		}
 		return $this->repr();

@@ -109,10 +109,10 @@ application/json");
 			} else if (preg_match('!/bugs/\d+/?$!', $this->url)) {
 				$resource = new Bug($this->url);
 			} else if (preg_match('!/bugs/\d+/notes/?$!', $this->url)) {
-				$resource = new BugNoteList($this->url);
+				$resource = new BugnoteList($this->url);
 			} else if (preg_match('!/notes/\d+/?$!', $this->url) ||
 				   preg_match('!/bugs/\d+/notes/\d+/?$!')) {
-				$resource = new BugNote($this->url);
+				$resource = new Bugnote($this->url);
 			} else {
 				http_error(404, "No resource at this URL");
 			}

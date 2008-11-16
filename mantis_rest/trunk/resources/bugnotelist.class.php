@@ -1,5 +1,5 @@
 <?php
-class BugNoteList extends Resource
+class BugnoteList extends Resource
 {
 	/**
 	 *      A list of bug notes.
