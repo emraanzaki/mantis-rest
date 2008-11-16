@@ -34,7 +34,7 @@
 		} else {
 			http_error(406, "Unacceptable content type: $type.  This resource is available in the following content types:
 
-text/xjson
+text/x-json
 application/json");
 		}
 	}
