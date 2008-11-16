@@ -4,16 +4,10 @@ class BugNote extends Resource
 	/**
 	 *      A bug note.
 	 */
-	function __construct($url)
-	{
-		/**
-		 *      Constructs the note.
-		 *
-		 *      @param $url - The URL with which this resource was requested
-		 */
-		$matches = array();
-		$this->note_id = BugNote::get_mantis_id_from_url($url);
-	}
+	public static $mantis_attrs = array('bug_id', 'reporter_id', 'note', 'view_state',
+					    'date_submitted', 'last_modified');
+	public static $rsrc_attrs = array('bug', 'reporter', 'note', 'private', 'date_submitted',
+	       				  'last_modified');
 
 	static function get_url_from_mantis_id($id)
 	{
@@ -25,9 +19,6 @@ class BugNote extends Resource
 
 	static function get_mantis_id_from_url($url)
 	{
-		/**
-		 * 	Given the URL of a bugnote, return that note's Mantis ID.
-		 */
 		$matches = array();
 		if (preg_match('!/(\d+)/?$!', $url, &$matches)) {
 			return (int)$matches[1];
@@ -36,31 +27,46 @@ class BugNote extends Resource
 		}
 	}
 
-	static function get_db_row_from_resource($rsrc)
+	function __construct($url)
 	{
 		/**
-		 * 	Given a resource (as an array), return the database row.
+		 *      Constructs the note.
+		 *
+		 *      @param $url - The URL with which this resource was requested
 		 */
-		$row = array();
-		$row['bug_id'] = Bug::get_mantis_id_from_url($rsrc['bug']);
-		$row['reporter_id'] = User::get_mantis_id_from_url($rsrc['reporter']);
-		$row['note'] = $rsrc['note'];
-		$row['private'] = !!($rsrc['view_state'] == VS_PRIVATE);
-		$row['date_submitted'] = $rsrc['date_submitted'];
-		$row['last_modified'] = $rsrc['last_modified'];
-		return $row;
+		$matches = array();
+		$this->note_id = BugNote::get_mantis_id_from_url($url);
+
+		$this->mantis_data = array();
+		$this->rsrc_data = array();
 	}
 
-	static function get_resource_from_db_row($row)
+	private function _get_rsrc_attr($attr_name)
 	{
-		$rsrc = array();
-		$rsrc['bug'] = Bug::get_url_from_mantis_id($row['bug_id']);
-		$rsrc['reporter'] = User::get_url_from_mantis_id($row['reporter_id']);
-		$rsrc['note'] = $row['note'];
-		$rsrc['view_state'] = $row['private'] ? VS_PRIVATE : VS_PUBLIC;
-		$rsrc['date_submitted'] = $row['date_submitted'];
-		$rsrc['last_modified'] = $row['last_modified'];
-		return $rsrc;
+		if ($attr_name == 'bug') {
+			return Bug::get_url_from_mantis_id($this->mantis_data['bug_id']);
+		} elseif ($attr_name == 'reporter') {
+			return User::get_url_from_mantis_id($this->mantis_data['reporter_id']);
+		} elseif ($attr_name == 'private') {
+			return ($this->mantis_data['view_state'] == VS_PRIVATE);
+		} elseif (in_array($attr_name, BugNote::$rsrc_attrs)) {
+			return $this->mantis_data[$attr_name];
+		} else {
+			http_error(415, "Unknown resource attribute: $attr_name");
+		}
+	}
+
+	private function _get_mantis_attr($attr_name)
+	{
+		if ($attr_name == 'bug_id') {
+			return Bug::get_mantis_id_from_url($this->rsrc_data['bug']);
+		} elseif ($attr_name == 'reporter_id') {
+			return User::get_mantis_id_from_url($this->rsrc_data['reporter']);
+		} elseif ($attr_name == 'view_state') {
+			return ($this->rsrc_data['private'] ? VS_PRIVATE : VS_PUBLIC);
+		} elseif (in_array($attr_name, BugNote::$mantis_attrs)) {
+			return $this->rsrc_data[$attr_name];
+		}
 	}
 
 	public function get()
@@ -92,12 +98,12 @@ class BugNote extends Resource
 
 		$col_names = array('bug_id', 'reporter_id', 'note', 'view_state',
 				   'date_submitted', 'last_modified');
-		$cols = array();
 		for ($i = 0; $i < count($col_names); $i++) {
-			$cols[$col_names[$i]] = $row[$i];
+			$this->mantis_data[$col_names[$i]] = $row[$i];
 		}
-
-		$this->data = BugNote::get_resource_from_db_row($cols);
+		foreach (BugNote::$rsrc_attrs as $a) {
+			$this->rsrc_data[$a] = $this->_get_rsrc_attr($a);
+		}
 		return $this->repr();
 	}
 
@@ -126,8 +132,8 @@ class BugNote extends Resource
 
 		$new_rep = file_get_contents('php://input');
 		$new_data = json_decode($new_rep, true);
-		$bugnote_data = BugNote::get_db_row_from_resource($new_data);
-		bugnote_set_text($this->note_id, $bugnote_data['note']);
+		$this->rsrc_data = $new_data;
+		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));
 	}
 }
 ?>

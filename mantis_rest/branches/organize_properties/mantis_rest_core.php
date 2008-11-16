@@ -74,7 +74,7 @@ application/json");
 			 */
 			$type = content_type();
 			if ($type == 'text/x-json' || $type == 'application/json') {
-				return json_encode($this->data);
+				return json_encode($this->rsrc_data);
 			}
 		}
 

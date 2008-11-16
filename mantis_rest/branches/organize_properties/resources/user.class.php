@@ -1,6 +1,13 @@
 <?php
 class User extends Resource
 {
+	public static $mantis_attrs = array('username', 'password', 'realname', 'email',
+		'date_created', 'last_visit', 'enabled', 'protected', 'access_level', 'login_count',
+		'lost_password_request_count', 'failed_login_count');
+	public static $rsrc_attrs = array('username', 'password', 'realname', 'email',
+		'date_created', 'last_visit', 'enabled', 'protected', 'access_level', 'login_count',
+		'lost_password_request_count', 'failed_login_count');
+
 	static function get_url_from_mantis_id($user_id)
 	{
 		/**
@@ -23,6 +30,31 @@ class User extends Resource
 	function __construct($url)
 	{
 		$this->user_id = User::get_mantis_id_from_url($url);
+
+		$this->mantis_data = array();
+		$this->rsrc_data = array();
+	}
+
+	private function _get_mantis_attr($attr_name)
+	{
+		if ($attr_name == 'enabled' || $attr_name == 'protected') {
+			return $this->rsrc_data[$attr_name] ? 1 : 0;
+		} elseif (in_array($attr_name, User::$mantis_attrs)) {
+			return ($this->rsrc_data[$attr_name]);
+		} else {
+			http_error(415, "Unknown resource attribute: $attr_name");
+		}
+	}
+
+	private function _get_rsrc_attr($attr_name)
+	{
+		if ($attr_name == 'password') {
+			return '********';
+		} elseif ($attr_name == 'enabled' || $attr_name == 'protected') {
+			return !!$this->mantis_data[$attr_name];
+		} else {
+			return $this->mantis_data[$attr_name];
+		}
 	}
 
 	public function get()
@@ -59,24 +91,12 @@ class User extends Resource
 				   'last_visit', 'enabled', 'protected', 'access_level',
 				   'login_count', 'lost_password_request_count',
 				   'failed_login_count');
-		$cols = array();
 		for ($i = 0; $i < count($col_names); $i++) {
-			$cols[$col_names[$i]] = $row[$i];
+			$this->mantis_data[$col_names[$i]] = $row[$i];
 		}
-
-		$this->data['username'] = $cols['username'];
-		$this->data['password'] = "********";
-		$this->data['realname'] = $cols['realname'];
-		$this->data['email'] = $cols['email'];
-		$this->data['date_created'] = $cols['date_created'];
-		$this->data['last_visit'] = $cols['last_visit'];
-		$this->data['enabled'] = !!$cols['enabled'];
-		$this->data['protected'] = !!$cols['protected'];
-		$this->data['access_level'] = $cols['access_level'];
-		$this->data['login_count'] = $cols['login_count'];
-		$this->data['lost_password_request_count'] =
-						$cols['lost_password_request_count'];
-		$this->data['failed_login_count'] = $cols['failed_login_count'];
+		foreach (User::$rsrc_attrs as $a) {
+			$this->rsrc_data[$a] = $this->_get_rsrc_attr($a);
+		}
 		return $this->repr();
 	}
 
