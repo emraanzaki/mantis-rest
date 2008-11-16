@@ -100,18 +100,19 @@ application/json");
 			 */
 			# In order to find out what kind of resource we're dealing with, we match
 			# the path part of the URL against a sequence of regexes.
-			if (preg_match('!/users/?$!', $this->url)) {
+			$path = parse_url($this->url, PHP_URL_PATH);
+			if (preg_match('!/users/?$!', $path)) {
 				$resource = new UserList($this->url);
-			} else if (preg_match('!/users/\d+/?$!', $this->url)) {
+			} else if (preg_match('!/users/\d+/?$!', $path)) {
 				$resource = new User($this->url);
-			} else if (preg_match('!/bugs/?$!', $this->url)) {
+			} else if (preg_match('!/bugs/?$!', $path)) {
 				$resource = new BugList($this->url);
-			} else if (preg_match('!/bugs/\d+/?$!', $this->url)) {
+			} else if (preg_match('!/bugs/\d+/?$!', $path)) {
 				$resource = new Bug($this->url);
-			} else if (preg_match('!/bugs/\d+/notes/?$!', $this->url)) {
+			} else if (preg_match('!/bugs/\d+/notes/?$!', $path)) {
 				$resource = new BugnoteList($this->url);
-			} else if (preg_match('!/notes/\d+/?$!', $this->url) ||
-				   preg_match('!/bugs/\d+/notes/\d+/?$!')) {
+			} else if (preg_match('!/notes/\d+/?$!', $path)) ||
+				   preg_match('!/bugs/\d+/notes/\d+/?$!', $path)) {
 				$resource = new Bugnote($this->url);
 			} else {
 				http_error(404, "No resource at this URL");
