@@ -5,7 +5,8 @@ class BugList extends Resource
 	 *      A list of Mantis bugs.
 	 */
 	function __construct() {
-		$this->uri = $GLOBALS['cfg_api_url'] . '/bugs';
+		$this->url = $GLOBALS['cfg_api_url'] . '/bugs';
+		var_dump($_GET);
 	}
 
 	public function get()
@@ -13,7 +14,6 @@ class BugList extends Resource
 		/**
 		 *      Returns the list of bug URIs.
 		 */
-
 		$bug_table = config_get('mantis_bug_table');
 		$query = "SELECT b.id
 			  FROM $bug_table b;";
