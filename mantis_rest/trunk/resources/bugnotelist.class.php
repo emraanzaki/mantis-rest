@@ -42,7 +42,8 @@ class BugnoteList extends Resource
 
 		$this->data = array();
 		foreach ($note_ids as $n) {
-			$this->data[] = $GLOBALS['cfg_api_url'] . "/notes/$n";
+			$config = get_config();
+			$this->data[] = $config['paths']['api_url'] . "/notes/$n";
 		}
 		return $this->repr();
 	}

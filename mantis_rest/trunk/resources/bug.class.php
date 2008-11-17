@@ -29,7 +29,8 @@ class Bug extends Resource
 
 	static function get_url_from_mantis_id($bug_id)
 	{
-		return $GLOBALS['cfg_api_url'] . "/bugs/$bug_id";
+		$config = get_config();
+		return $config['paths']['api_url'] . "/bugs/$bug_id";
 	}
 
 	function __construct($url)

@@ -1,11 +1,17 @@
 <?php
-	require_once('config_inc.php');
-	require_once($GLOBALS['cfg_mantis_root'] . '/core.php');
+	$config = parse_ini_file('mantis_rest.ini', TRUE);
+	require_once($config['mantis']['root'] . '/core.php');
 
 	function __autoload($class)
 	{
 		$class = strtolower($class);
 		require_once("resources/$class.class.php");
+	}
+
+	function get_config()
+	{
+		global $config;
+		return $config;
 	}
 
 	function http_error($code, $message)

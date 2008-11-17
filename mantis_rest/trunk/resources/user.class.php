@@ -14,7 +14,8 @@ class User extends Resource
 		 *      Returns the URL for the resource corresponding to the user with the
 		 *      given Mantis user ID.
 		 */
-		return $GLOBALS['cfg_api_url'] . "/$user_id";
+		$config = get_config();
+		return $config['paths']['api_url'] . "/$user_id";
 	}
 
 	static function get_mantis_id_from_url($url)

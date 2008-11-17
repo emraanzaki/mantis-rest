@@ -14,7 +14,8 @@ class Bugnote extends Resource
 		/**
 		 * 	Given a Mantis bugnote ID, returns the URL of its resource.
 		 */
-		return $GLOBALS['cfg_api_url'] . "/notes/$id";
+		$config = get_config();
+		return $config['paths']['api_url'] . "/notes/$id";
 	}
 
 	static function get_mantis_id_from_url($url)

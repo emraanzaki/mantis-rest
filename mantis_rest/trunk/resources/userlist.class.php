@@ -3,7 +3,8 @@ class UserList extends Resource
 {
 	function __construct($url)
 	{
-		$this->canonical_url = $GLOBALS['cfg_api_url'] . '/users';
+		$config = get_config();
+		$this->canonical_url = $config['paths']['api_url'] . '/users';
 		$this->mantis_data = array();
 		$this->rsrc_data = array();
 	}
