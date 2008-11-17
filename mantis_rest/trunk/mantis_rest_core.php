@@ -60,6 +60,36 @@ application/json");
 		return -1;
 	}
 
+	function date_to_timestamp($iso_date)
+	{
+		/**
+		 *	Returns a UNIX timestamp for the given date.
+		 *
+		 *	@param $iso_date - A string containing a date in ISO 8601 format
+		 */
+		return strtotime($iso_date);
+	}
+
+	function timestamp_to_iso_date($timestamp)
+	{
+		/**
+		 *	Returns an ISO 8601 date for the given timestamp.
+		 *
+		 *	@param $timestamp - The timestamp.
+		 */
+		return date('c', $timestamp);
+	}
+
+	function date_to_iso_date($date)
+	{
+		return date('c', strtotime($date));
+	}
+
+	function date_to_sql_date($date)
+	{
+		return date('Y-m-d H:i:s', strtotime($date));
+	}
+
 	function handle_error($errno, $errstr)
 	{
 		http_error(500, "Mantis encountered an error: " . error_string($errstr));

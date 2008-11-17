@@ -61,6 +61,8 @@ class Bug extends Resource
 					'status', 'resolution', 'projection', 'eta'))) {
 			return get_string_to_enum(config_get($attr_name."_enum_string"),
 				$this->rsrc_data[$attr_name]);
+		} elseif ($attr_name == 'date_submitted' || $attr_name == 'last_updated') {
+			return iso_date_to_timestamp($this->rsrc_data[$attr_name]);
 		} elseif ($attr_name == 'view_state') {
 			return $this->rsrc_data['private'] ? VS_PRIVATE : VS_PUBLIC;
 		} elseif (in_array($attr_name, Bug::$mantis_attrs)) {
@@ -86,6 +88,8 @@ class Bug extends Resource
 					'status', 'resolution', 'projection', 'eta'))) {
 			return get_enum_to_string(config_get($attr_name."_enum_string"),
 				$this->mantis_data[$attr_name]);
+		} elseif ($attr_name == 'date_submitted' || $attr_name == 'last_updated') {
+			return timestamp_to_iso_date($this->mantis_data[$attr_name]);
 		} elseif ($attr_name == 'private') {
 			return $this->mantis_data['view_state'] == VS_PRIVATE;
 		} elseif ($attr_name == 'project_id' or $attr_name == 'profile_id') {

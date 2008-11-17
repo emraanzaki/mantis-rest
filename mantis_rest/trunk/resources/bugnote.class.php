@@ -49,6 +49,8 @@ class Bugnote extends Resource
 			return User::get_url_from_mantis_id($this->mantis_data['reporter_id']);
 		} elseif ($attr_name == 'private') {
 			return ($this->mantis_data['view_state'] == VS_PRIVATE);
+		} elseif ($attr_name == 'date_submitted' || $attr_name == 'last_modified') {
+			return date_to_iso_date($this->mantis_data[$attr_name]);
 		} elseif (in_array($attr_name, Bugnote::$rsrc_attrs)) {
 			return $this->mantis_data[$attr_name];
 		} else {
