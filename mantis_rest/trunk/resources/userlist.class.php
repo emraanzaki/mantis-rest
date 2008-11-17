@@ -11,7 +11,6 @@ class UserList extends Resource
 	private function _get_query_condition($key, $value)
 	{
 		if ($key == 'username') {
-			# @DEBUG
 			if (user_is_name_valid($value)) {
 				return "u.username = '$value'";
 			} else {
