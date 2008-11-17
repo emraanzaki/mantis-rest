@@ -58,6 +58,10 @@ class User extends Resource
 		} elseif ($attr_name == 'access_level') {
 			return get_enum_to_string(config_get('access_levels_enum_string'),
 				$this->mantis_data['access_level']);
+		} elseif (in_array($attr_name, array('login_count',
+			'lost_password_request_count',
+			'failed_login_count'))) {
+			return (int)$this->$attr_name;
 		} else {
 			return $this->mantis_data[$attr_name];
 		}

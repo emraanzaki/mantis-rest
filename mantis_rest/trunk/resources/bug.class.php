@@ -88,6 +88,8 @@ class Bug extends Resource
 				$this->mantis_data[$attr_name]);
 		} elseif ($attr_name == 'private') {
 			return $this->mantis_data['view_state'] == VS_PRIVATE;
+		} elseif ($attr_name == 'project_id' or $attr_name == 'profile_id') {
+			return (int)$this->mantis_data[$attr_name];
 		} elseif (in_array($attr_name, Bug::$rsrc_attrs)) {
 			return $this->mantis_data[$attr_name];
 		}
