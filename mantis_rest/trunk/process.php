@@ -15,8 +15,6 @@
 		http_error(401, "Invalid credentials");
 	}
 	$service->uid = user_get_id_by_name($service->username);
-	$service->gets = $_GET;
-	$service->posts = $_POST;
 
 	$service->handle();
 ?>
