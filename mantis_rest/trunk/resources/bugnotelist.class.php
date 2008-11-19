@@ -40,10 +40,10 @@ class BugnoteList extends Resource
 			$note_ids[] = $n->id;
 		}
 
-		$this->data = array();
+		$this->rsrc_data = array();
 		foreach ($note_ids as $n) {
 			$config = get_config();
-			$this->data[] = $config['paths']['api_url'] . "/notes/$n";
+			$this->rsrc_data[] = $config['paths']['api_url'] . "/notes/$n";
 		}
 		return $this->repr();
 	}
