@@ -4,19 +4,18 @@ class Bug extends Resource
 	/**
 	 *      A Mantis bug.
 	 */
-	static public $mantis_attrs = array('id', 'project_id', 'reporter_id', 'handler_id',
+	static public $mantis_attrs = array('project_id', 'reporter_id', 'handler_id',
 		'duplicate_id', 'priority', 'severity', 'reproducibility', 'status', 'resolution',
 		'projection', 'category', 'date_submitted', 'last_updated', 'eta', 'os', 'os_build',
 		'platform', 'version', 'fixed_in_version', 'target_version', 'build', 'view_state',
 		'summary', 'profile_id', 'description', 'steps_to_reproduce',
 		'additional_information');
 
-	static public $rsrc_attrs = array('bug_id', 'project_id', 'reporter', 'handler',
-		'duplicate', 'priority', 'severity', 'reproducibility', 'status', 'resolution',
-		'projection', 'category', 'date_submitted', 'last_updated', 'eta', 'os', 'os_build',
-		'platform', 'version', 'fixed_in_version', 'target_version', 'build', 'private',
-		'summary', 'profile_id', 'description', 'steps_to_reproduce',
-		'additional_information');
+	static public $rsrc_attrs = array('project_id', 'reporter', 'handler', 'duplicate',
+		'priority', 'severity', 'reproducibility', 'status', 'resolution', 'projection',
+		'category', 'date_submitted', 'last_updated', 'eta', 'os', 'os_build', 'platform',
+		'version', 'fixed_in_version', 'target_version', 'build', 'private', 'summary',
+		'profile_id', 'description', 'steps_to_reproduce', 'additional_information');
 
 	static function get_mantis_id_from_url($url)
 	{
@@ -43,15 +42,13 @@ class Bug extends Resource
 		 */
 		$this->bug_id = Bug::get_mantis_id_from_url($url);
 
-		$this->mantis_data = array('id' => $this->bug_id);
-		$this->rsrc_data = array('bug_id' => $this->bug_id);
+		$this->mantis_data = array();
+		$this->rsrc_data = array();
 	}
 
 	private function _get_mantis_attr($attr_name)
 	{
-		if ($attr_name == 'id') {
-			return $this->bug_id;
-		} elseif ($attr_name == 'reporter_id') {
+		if ($attr_name == 'reporter_id') {
 			return User::get_mantis_id_from_url($this->rsrc_data['reporter']);
 		} elseif ($attr_name == 'handler_id') {
 			return $this->rsrc_data['handler'] ?
@@ -78,9 +75,7 @@ class Bug extends Resource
 
 	private function _get_rsrc_attr($attr_name)
 	{
-		if ($attr_name == 'bug_id') {
-			return $this->bug_id;
-		} elseif ($attr_name == 'reporter') {
+		if ($attr_name == 'reporter') {
 			return User::get_url_from_mantis_id($this->mantis_data['reporter_id']);
 		} elseif ($attr_name == 'handler') {
 			return $this->mantis_data['handler_id'] ?
