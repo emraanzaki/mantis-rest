@@ -28,7 +28,7 @@ class Bugnote extends Resource
 		}
 	}
 
-	function __construct($url)
+	function __construct($url = 'http://localhost/notes/0')
 	{
 		/**
 		 *      Constructs the note.
@@ -72,18 +72,8 @@ class Bugnote extends Resource
 		}
 	}
 
-	public function get()
+	public function populate_from_db()
 	{
-		/**
-		 *      Returns a representation of the note.
-		 */
-		if (!bugnote_exists($this->note_id)) {
-			http_error(404, "No such bug note: $this->note_id");
-		}
-		if (!access_has_bugnote_level(VIEWER, $this->note_id)) {
-			http_error(403, "Access denied");
-		}
-
 		$bugnote_table = config_get('mantis_bugnote_table');
 		$bugnote_text_table = config_get('mantis_bugnote_text_table');
 		$query = "SELECT n.bug_id,
@@ -107,6 +97,30 @@ class Bugnote extends Resource
 		foreach (Bugnote::$rsrc_attrs as $a) {
 			$this->rsrc_data[$a] = $this->_get_rsrc_attr($a);
 		}
+	}
+
+	public function populate_from_rsrc()
+	{
+		$new_rep = file_get_contents('php://input');
+		$new_data = json_decode($new_rep, true);
+		$this->rsrc_data = $new_data;
+		foreach (Bugnote::$mantis_attrs as $a) {
+			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
+		}
+	}
+
+	public function get()
+	{
+		/**
+		 *      Returns a representation of the note.
+		 */
+		if (!bugnote_exists($this->note_id)) {
+			http_error(404, "No such bug note: $this->note_id");
+		}
+		if (!access_has_bugnote_level(VIEWER, $this->note_id)) {
+			http_error(403, "Access denied");
+		}
+		$this->populate_from_db();
 		return $this->repr();
 	}
 
@@ -127,15 +141,12 @@ class Bugnote extends Resource
 				http_error(403, "Access denied");
 			}
 		}
-
 		# Check if the bug is readonly
 		if (bug_is_readonly($bug_id)) {
-			http_error(403, "Access denied: bug is read-only.");
+			http_error(500, "Can't edit a note on a read-only bug");
 		}
 
-		$new_rep = file_get_contents('php://input');
-		$new_data = json_decode($new_rep, true);
-		$this->rsrc_data = $new_data;
+		$this->populate_from_rsrc();
 		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));
 	}
 }
