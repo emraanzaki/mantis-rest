@@ -102,7 +102,7 @@ class Bugnote extends Resource
 	public function populate_from_rsrc()
 	{
 		$new_rep = file_get_contents('php://input');
-		$new_data = json_decode($new_rep, true);
+		$new_data = json_decode($new_rep, TRUE);
 		$this->rsrc_data = $new_data;
 		foreach (Bugnote::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
