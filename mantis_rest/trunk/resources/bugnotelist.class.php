@@ -52,5 +52,34 @@ class BugnoteList extends Resource
 	{
 		method_not_allowed("PUT");
 	}
+
+	public function post()
+	{
+		/**
+		 * 	Creates a new bugnote.
+		 *
+		 * 	Sets the location header and returns the main URL of the created resource,
+		 * 	as RFC2616 says we SHOULD.
+		 */
+		if (!access_has_bug_level(config_get('add_bugnote_threshold'), $this->bug_id)) {
+			http_error(403, "Access denied to add bugnote");
+		}
+		if (bug_is_readonly($this->bug_id)) {
+			http_error(500, "Cannot add a bugnote to a read-only bug");
+		}
+
+		$new_note = new Bugnote;
+		$new_note->populate_from_repr();
+		$bugnote_added = bugnote_add($this->bug_id, $new_note->mantis_data['note'],
+			'0:00', $new_note->mantis_data['view_state'] == VS_PRIVATE);
+		if ($bugnote_added) {
+			$bugnote_added_url = Bugnote::get_url_from_mantis_id($bugnote_added);
+			header("location: $bugnote_added_url");
+			$this->rsrc_data = $bugnote_added_url;
+			return $this->repr();
+		} else {
+			http_error(500, "Couldn't create bugnote");
+		}
+	}
 }
 ?>

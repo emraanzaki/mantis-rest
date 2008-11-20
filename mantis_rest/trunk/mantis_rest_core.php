@@ -139,15 +139,15 @@ application/json");
 			$path = parse_url($this->url, PHP_URL_PATH);
 			if (preg_match('!/users/?$!', $path)) {
 				$resource = new UserList($this->url);
-			} else if (preg_match('!/users/\d+/?$!', $path)) {
+			} elseif (preg_match('!/users/\d+/?$!', $path)) {
 				$resource = new User($this->url);
-			} else if (preg_match('!/bugs/?$!', $path)) {
+			} elseif (preg_match('!/bugs/?$!', $path)) {
 				$resource = new BugList($this->url);
-			} else if (preg_match('!/bugs/\d+/?$!', $path)) {
+			} elseif (preg_match('!/bugs/\d+/?$!', $path)) {
 				$resource = new Bug($this->url);
-			} else if (preg_match('!/bugs/\d+/notes/?$!', $path)) {
+			} elseif (preg_match('!/bugs/\d+/notes/?$!', $path)) {
 				$resource = new BugnoteList($this->url);
-			} else if (preg_match('!/notes/\d+/?$!', $path) ||
+			} elseif (preg_match('!/notes/\d+/?$!', $path) ||
 				   preg_match('!/bugs/\d+/notes/\d+/?$!', $path)) {
 				$resource = new Bugnote($this->url);
 			} else {
@@ -157,13 +157,21 @@ application/json");
 			if ($this->method == 'GET') {
 				header('Content-type', content_type());
 				echo $resource->get();
-			} else if ($this->method == 'PUT') {
+			} elseif ($this->method == 'PUT') {
 				$retval = $resource->put();
 				if ($retval) {
 					header('Content-type', content_type());
 					echo $retval;
 				} else {
 					header('HTTP/1.1 204');
+				}
+			} elseif ($this->method == 'POST') {
+				$retval = $resource->post();
+				if ($retval) {
+					header('Content-type', content_type());
+					echo $retval;
+				} else {
+					header('HTTP/1.1 201');
 				}
 			}
 		}

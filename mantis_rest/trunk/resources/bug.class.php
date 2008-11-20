@@ -33,7 +33,7 @@ class Bug extends Resource
 		return $config['paths']['api_url'] . "/bugs/$bug_id";
 	}
 
-	function __construct($url)
+	function __construct($url='http://localhost/bugs/0')
 	{
 		/**
 		 *      Constructs the bug.
@@ -100,6 +100,48 @@ class Bug extends Resource
 		}
 	}
 
+	public function populate_from_db()
+	{
+		/**
+		 * 	Populates the Bug instance based on what's in the Mantis DB.
+		 */
+		$bugdata = bug_get($this->bug_id);
+		foreach (Bug::$mantis_attrs as $a) {
+			$this->mantis_data[$a] = $bugdata->$a;
+		}
+		foreach (Bug::$rsrc_attrs as $a) {
+			$this->rsrc_data[$a] = $this->_get_rsrc_attr($a);
+		}
+	}
+
+	public function populate_from_repr()
+	{
+		/**
+		 * 	Populates the Bug instance based on an incoming representation.
+		 *
+		 * 	No validation is performed on the incoming data.
+		 */
+		$new_rep = file_get_contents('php://input');
+		$this->rsrc_data = json_decode($new_rep, TRUE);
+		foreach (Bug::$mantis_attrs as $a) {
+			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
+		}
+	}
+
+	public function to_bugdata()
+	{
+		/**
+		 * 	Returns a BugData object from the Mantis data in the instance.
+		 *
+		 * 	Expects the instance to have already been populated.
+		 */
+		$bugdata = new BugData;
+		foreach (Bug::$mantis_attrs as $a) {
+			$bugdata->$a = $this->mantis_data[$a];
+		}
+		return $bugdata;
+	}
+
 	public function get()
 	{
 		/*
@@ -112,13 +154,7 @@ class Bug extends Resource
 			http_error(403, "Permission denied");
 		}
 
-		$bug_data = bug_get($this->bug_id, true);
-		foreach (Bug::$mantis_attrs as $a) {
-			$this->mantis_data[$a] = $bug_data->$a;
-		}
-		foreach (Bug::$rsrc_attrs as $a) {
-			$this->rsrc_data[$a] = $this->_get_rsrc_attr($a);
-		}
+		$this->populate_from_db();
 		return $this->repr();
 	}
 
@@ -129,13 +165,7 @@ class Bug extends Resource
 		 *
 		 *      Returns the content, if any, that should be returned to the client.
 		 */
-		$new_rep = file_get_contents('php://input');
-		$this->rsrc_data = json_decode($new_rep, true);
-
-		$bug_data = new BugData;
-		foreach (Bug::$mantis_attrs as $a) {
-			$bug_data->$a = $this->_get_mantis_attr($a);
-		}
+		$this->populate_from_repr();
 		bug_update($this->bug_id, $bug_data, true);
 	}
 }

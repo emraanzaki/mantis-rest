@@ -63,5 +63,31 @@ class BugList extends Resource
 	{
 		method_not_allowed("PUT");
 	}
+
+	public function post()
+	{
+		/**
+		 * 	Creates a new bug.
+		 *
+		 * 	Sets the location header and returns the main URL of the created resource,
+		 * 	as RFC2616 says we SHOULD.
+		 */
+		# This is all copied from Mantis's bug_report.php.
+		$new_bug = new Bug;
+		$new_bug->populate_from_repr();
+		$new_bugdata = $new_bug->to_bugdata();
+		if (!access_has_project_level(config_get('report_bug_threshold'),
+				$new_bug->project_id)) {
+			http_error(403, "Access denied to report bug");
+		}
+		$new_bug_id = bug_create($new_bugdata);
+		
+		if ($new_bug_id) {
+			$new_bug_url = Bug::get_url_from_mantis_id($new_bug_id);
+			header("location: $new_bug_url");
+			$this->rsrc_data = $new_bug_url;
+			return $this->repr();
+		}
+	}
 }
 ?>

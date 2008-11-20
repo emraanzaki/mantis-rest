@@ -60,5 +60,43 @@ class UserList extends Resource
 	{
 		method_not_allowed("PUT");
 	}
+
+	public function post()
+	{
+		/**
+		 * 	Creates a new user.
+		 *
+		 * 	The user will get a confirmation email, and will have the password provided
+		 * 	in the incoming representation.
+		 */
+		if (!access_has_global_level(config_get('manage_user_threshold'))) {
+			http_error(403, "Access denied to create user");
+		}
+
+		$new_user = new User;
+		$new_user->populate_from_repr();
+
+		$username = $new_user->mantis_data['username'];
+		$password = $new_user->mantis_data['password'];
+		$email = email_append_domain($new_user->mantis_data['email']);
+		$access_level = $new_user->mantis_data['access_level'];
+		$protected = $new_user->mantis_data['protected'];
+		$enabled = $new_user->mantis_data['enabled'];
+		$realname = $new_user->mantis_data['realname'];
+
+		if (!user_is_name_valid($username)) {
+			http_error(500, "Invalid username");
+		} elseif (!user_is_realname_valid($realname)) {
+			http_error(500, "Invalid realname");
+		}
+		user_create($username, $password, $email, $access_level, $protected, $enabled,
+			$realname);
+
+		$new_user_id = user_get_id_by_name($username);
+		$new_user_url = User::get_url_from_mantis_id($new_user_id);
+		header('location',  $new_user_url);
+		$this->rsrc_data = $new_user_url;
+		return $this->repr();
+	}	
 }
 ?>
