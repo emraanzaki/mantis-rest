@@ -28,12 +28,9 @@ class User extends Resource
 		}
 	}
 
-	function __construct($url)
+	function __construct($url='http://localhost/users/0')
 	{
 		$this->user_id = User::get_mantis_id_from_url($url);
-		if (!user_exists($this->user_id)) {
-			http_error(404, "No such user");
-		}
 
 		$this->mantis_data = array();
 		$this->rsrc_data = array();
@@ -43,13 +40,13 @@ class User extends Resource
 	{
 		if ($attr_name == 'enabled' || $attr_name == 'protected') {
 			return $this->rsrc_data[$attr_name] ? 1 : 0;
-		} elseif (in_array($attr_name, User::$mantis_attrs)) {
-			return ($this->rsrc_data[$attr_name]);
 		} elseif ($attr_name == 'access_level') {
 			return get_string_to_enum(config_get('access_levels_enum_string'),
-				$this->rsrc_data[$attr_name]);
+				$this->rsrc_data['access_level']);
 		} elseif ($attr_name == 'date_created' || $attr_name == 'last_visit') {
 			return date_to_sql_date($this->rsrc_data[$attr_name]);
+		} elseif (in_array($attr_name, User::$mantis_attrs)) {
+			return ($this->rsrc_data[$attr_name]);
 		} else {
 			http_error(415, "Unknown resource attribute: $attr_name");
 		}
@@ -75,16 +72,11 @@ class User extends Resource
 		}
 	}
 
-	public function get()
+	public function populate_from_db()
 	{
 		/**
-		 *      Returns a representation of the user.
+		 * 	Populates the instance from the Mantis datbaase.
 		 */
-		if (!access_has_global_level(config_get('manage_user_threshold'))
-				&& auth_get_current_user_id() != $this->user_id) {
-			http_error(403, "Access denied to user $this->user_id's info");
-		}
-
 		$user_table = config_get('mantis_user_table');
 		$query = "SELECT u.username,
 				 u.realname,
@@ -112,6 +104,30 @@ class User extends Resource
 		foreach (User::$rsrc_attrs as $a) {
 			$this->rsrc_data[$a] = $this->_get_rsrc_attr($a);
 		}
+	}
+
+	public function populate_from_repr()
+	{
+		/**
+		 * 	Populates the instance from the representation in the request body.
+		 */
+		$new_repr = file_get_contents('php://input');
+		$this->rsrc_data = json_decode($new_repr, TRUE);
+		foreach (User::$mantis_attrs as $a) {
+			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
+		}
+	}
+
+	public function get()
+	{
+		/**
+		 *      Returns a representation of the user.
+		 */
+		if (!access_has_global_level(config_get('manage_user_threshold'))
+				&& auth_get_current_user_id() != $this->user_id) {
+			http_error(403, "Access denied to user $this->user_id's info");
+		}
+		$this->populate_from_db();
 		return $this->repr();
 	}
 
@@ -121,9 +137,7 @@ class User extends Resource
 				&& auth_get_current_user_id() != $this->user_id) {
 			http_error(403, "Access denied to edit user $this->user_id's info");
 		}
-
-		$new_rep = file_get_contents('php://input');
-		$this->rsrc_data = json_decode($new_rep, TRUE);
+		$this->populate_from_repr();
 
 		# Do some validation on the inputs (from Mantis's user_create())
 		$username = db_prepare_string($this->rsrc_data['username']);
