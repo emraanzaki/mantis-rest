@@ -99,7 +99,7 @@ class Bugnote extends Resource
 		}
 	}
 
-	public function populate_from_rsrc()
+	public function populate_from_repr()
 	{
 		$new_rep = file_get_contents('php://input');
 		$new_data = json_decode($new_rep, TRUE);
@@ -146,7 +146,7 @@ class Bugnote extends Resource
 			http_error(500, "Can't edit a note on a read-only bug");
 		}
 
-		$this->populate_from_rsrc();
+		$this->populate_from_repr();
 		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));
 	}
 }

@@ -69,7 +69,7 @@ class BugnoteList extends Resource
 		}
 
 		$new_note = new Bugnote;
-		$new_note->populate_from_rsrc();
+		$new_note->populate_from_repr();
 		$bugnote_added = bugnote_add($this->bug_id, $new_note->mantis_data['note'],
 			'0:00', $new_note->mantis_data['view_state'] == VS_PRIVATE);
 		if ($bugnote_added) {
