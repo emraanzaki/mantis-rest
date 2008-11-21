@@ -180,7 +180,7 @@ class Bug extends Resource
 
 	public function post($request)
 	{
-		method_not_allowed('POST');
+		method_not_allowed('POST', array('GET', 'PUT'));
 	}
 }
 ?>

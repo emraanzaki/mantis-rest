@@ -27,8 +27,17 @@
 		exit;
 	}
 
-	function method_not_allowed($method)
+	function method_not_allowed($method, $allowed)
 	{
+		/**
+		 * 	Errors out when a method is not allowed on a resource.
+		 *
+		 * 	We set the Allow header, which is a MUST according to RFC 2616.
+		 *
+		 * 	@param $method - The method that's not allowed
+		 * 	@param $allowed - An array containing the methods that are allowed
+		 */
+		header("allow: " . implode(", ", $allowed));
 		http_error(405, "The method $method can't be used on this resource");
 	}
 

@@ -67,7 +67,7 @@ class BugList extends Resource
 
 	public function put($request)
 	{
-		method_not_allowed("PUT");
+		method_not_allowed("PUT", array("GET", "POST"));
 	}
 
 	public function post($request)
