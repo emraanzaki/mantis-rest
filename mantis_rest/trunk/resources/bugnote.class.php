@@ -109,10 +109,12 @@ class Bugnote extends Resource
 		}
 	}
 
-	public function get()
+	public function get($request)
 	{
 		/**
-		 *      Returns a representation of the note.
+		 *      Returns a Response with a representation of the note.
+		 *
+		 *      @param $request - The request we're responding to
 		 */
 		if (!bugnote_exists($this->note_id)) {
 			http_error(404, "No such bug note: $this->note_id");
@@ -121,11 +123,22 @@ class Bugnote extends Resource
 			http_error(403, "Access denied");
 		}
 		$this->populate_from_db();
-		return $this->repr();
+
+		$resp = new Response();
+		$resp->status = 200;
+		$resp->body = $this->repr();
+		return $resp;
 	}
 
-	public function put()
+	public function put($request)
 	{
+		/**
+		 * 	Updates the note.
+		 *
+		 * 	Only the text of the note can be altered.
+		 *
+		 *      @param $request - The request we're responding to
+		 */
 		if (!bugnote_exists($this->note_id)) {
 			http_error(404, "No such bug note: $this->note_id");
 		}
@@ -141,16 +154,18 @@ class Bugnote extends Resource
 				http_error(403, "Access denied");
 			}
 		}
-		# Check if the bug is readonly
 		if (bug_is_readonly($bug_id)) {
 			http_error(500, "Can't edit a note on a read-only bug");
 		}
-
 		$this->populate_from_repr();
 		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));
+
+		$resp = new Response();
+		$resp->status = 204;
+		return $resp;
 	}
 
-	public function post()
+	public function post($request)
 	{
 		method_not_allowed('POST');
 	}

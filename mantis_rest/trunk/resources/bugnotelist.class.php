@@ -18,10 +18,12 @@ class BugnoteList extends Resource
 		}
 	}
 
-	public function get()
+	public function get($request)
 	{
 		/*
-		 *      Returns a representation of the note list.
+		 *      Returns a Response with a representation of the note list.
+		 *
+		 *      @param $request - The Request we're responding to
 		 */
 		# Access checking and note gathering is based on Mantis's
 		# email_build_visible_bug_data().
@@ -45,21 +47,27 @@ class BugnoteList extends Resource
 			$config = get_config();
 			$this->rsrc_data[] = $config['paths']['api_url'] . "/notes/$n";
 		}
-		return $this->repr();
+
+		$resp = new Response();
+		$resp->status = 200;
+		$resp->body = $this->repr();
+		return $resp;
 	}
 
-	public function put()
+	public function put($request)
 	{
 		method_not_allowed("PUT");
 	}
 
-	public function post()
+	public function post($request)
 	{
 		/**
 		 * 	Creates a new bugnote.
 		 *
 		 * 	Sets the location header and returns the main URL of the created resource,
 		 * 	as RFC2616 says we SHOULD.
+		 *
+		 * 	@param $request - The Request we're responding to
 		 */
 		if (!access_has_bug_level(config_get('add_bugnote_threshold'), $this->bug_id)) {
 			http_error(403, "Access denied to add bugnote");
@@ -74,9 +82,12 @@ class BugnoteList extends Resource
 			'0:00', $new_note->mantis_data['view_state'] == VS_PRIVATE);
 		if ($bugnote_added) {
 			$bugnote_added_url = Bugnote::get_url_from_mantis_id($bugnote_added);
-			header("location: $bugnote_added_url");
 			$this->rsrc_data = $bugnote_added_url;
-			return $this->repr();
+
+			$resp = new Response();
+			$resp->headers[] = "location: $bugnote_added_url";
+			$resp->status = 201;
+			return $resp;
 		} else {
 			http_error(500, "Couldn't create bugnote");
 		}

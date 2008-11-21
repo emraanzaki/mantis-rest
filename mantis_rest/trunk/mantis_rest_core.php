@@ -126,9 +126,9 @@ application/json");
 			}
 		}
 
-		abstract public function get();		# Handles a GET request for the resource
-		abstract public function put();		# Handles a PUT request
-		abstract public function post();	# Handles a POST request
+		abstract public function get($request);	# Handles a GET request for the resource
+		abstract public function put($request);	# Handles a PUT request
+		abstract public function post($request);# Handles a POST request
 	}
 
 	class RestService
@@ -160,26 +160,18 @@ application/json");
 				http_error(404, "No resource at this URL");
 			}
 
+			header('Content-type', content_type());
 			if ($request->method == 'GET') {
-				header('Content-type', content_type());
-				echo $resource->get();
+				$resp = $resource->get($request);
 			} elseif ($request->method == 'PUT') {
-				$retval = $resource->put();
-				if ($retval) {
-					header('Content-type', content_type());
-					echo $retval;
-				} else {
-					header('HTTP/1.1 204');
-				}
+				$resp = $resource->put($request);
 			} elseif ($request->method == 'POST') {
-				$retval = $resource->post();
-				if ($retval) {
-					header('Content-type', content_type());
-					echo $retval;
-				} else {
-					header('HTTP/1.1 201');
-				}
+				$resp = $resource->post($request);
+			} else {
+				http_error(501, "Unrecognized method: $request->method");
 			}
+
+			$resp->send();
 		}
 	}
 ?>

@@ -118,21 +118,32 @@ class User extends Resource
 		}
 	}
 
-	public function get()
+	public function get($request)
 	{
 		/**
-		 *      Returns a representation of the user.
+		 *      Returns a Response with a representation of the user.
+		 *
+		 *      @param $request - The Request we're responding to
 		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))
 				&& auth_get_current_user_id() != $this->user_id) {
 			http_error(403, "Access denied to user $this->user_id's info");
 		}
 		$this->populate_from_db();
-		return $this->repr();
+
+		$resp = new Response();
+		$resp->status = 200;
+		$resp->body = $this->repr();
+		return $resp;
 	}
 
-	public function put()
+	public function put($request)
 	{
+		/**
+		 * 	Updates the user.
+		 *
+		 *      @param $request - The Request we're responding to
+		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))
 				&& auth_get_current_user_id() != $this->user_id) {
 			http_error(403, "Access denied to edit user $this->user_id's info");
@@ -183,9 +194,13 @@ class User extends Resource
 				    cookie_string = '$cookie_string'
 				WHERE id = $this->user_id;";
 		db_query($query);
+
+		$resp = new Response();
+		$resp->status = 204;
+		return $resp;
 	}
 
-	public function post()
+	public function post($request)
 	{
 		method_not_allowed('POST');
 	}

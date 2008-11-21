@@ -28,10 +28,12 @@ class BugList extends Resource
 		return "";
 	}
 
-	public function get()
+	public function get($request)
 	{
 		/**
-		 *      Returns the list of bug URIs.
+		 *      Returns the Response with a list of bug URIs.
+		 *
+		 *      @param $request - The Request we're responding to
 		 */
 		$conditions = array();
 		foreach ($_GET as $k => $v) {
@@ -56,21 +58,27 @@ class BugList extends Resource
 		foreach ($result as $row) {
 			$this->rsrc_data['results'][] = Bug::get_url_from_mantis_id($row[0]);
 		}
-		return $this->repr();
+
+		$resp = new Response();
+		$resp->status = 200;
+		$resp->body = $this->repr();
+		return $resp;
 	}
 
-	public function put()
+	public function put($request)
 	{
 		method_not_allowed("PUT");
 	}
 
-	public function post()
+	public function post($request)
 	{
 		/**
 		 * 	Creates a new bug.
 		 *
 		 * 	Sets the location header and returns the main URL of the created resource,
 		 * 	as RFC2616 says we SHOULD.
+		 *
+		 * 	@param $request - The Request we're responding to
 		 */
 		# This is all copied from Mantis's bug_report.php.
 		$new_bug = new Bug;
@@ -84,9 +92,15 @@ class BugList extends Resource
 		
 		if ($new_bug_id) {
 			$new_bug_url = Bug::get_url_from_mantis_id($new_bug_id);
-			header("location: $new_bug_url");
 			$this->rsrc_data = $new_bug_url;
-			return $this->repr();
+
+			$resp = new Response();
+			$resp->status = 201;
+			$resp->headers[] = "location: $new_bug_url";
+			$resp->body = $this->repr();
+			return $resp;
+		} else {
+			http_error(500, "Failed to create bug");
 		}
 	}
 }

@@ -142,10 +142,12 @@ class Bug extends Resource
 		return $bugdata;
 	}
 
-	public function get()
+	public function get($request)
 	{
 		/*
-		 *      Returns a representation of the bug.
+		 *      Returns a Response with a representation of the bug.
+		 *
+		 *      @param $request - The HTTP request we're responding to
 		 */
 		if (!bug_exists($this->bug_id)) {
 			http_error(404, "No such bug: $this->bug_id");
@@ -153,23 +155,30 @@ class Bug extends Resource
 		if (!access_has_bug_level(VIEWER, $this->bug_id)) {
 			http_error(403, "Permission denied");
 		}
-
 		$this->populate_from_db();
-		return $this->repr();
+
+		$resp = new Response();
+		$resp->status = 200;
+		$resp->body = $this->repr();
+		return $resp;
 	}
 
-	public function put()
+	public function put($request)
 	{
 		/*
 		 *      Replaces the bug resource using the representation provided.
 		 *
-		 *      Returns the content, if any, that should be returned to the client.
+		 *      @param $request - The HTTP request we're responding to
 		 */
 		$this->populate_from_repr();
 		bug_update($this->bug_id, $bug_data, true);
+
+		$resp = new Response();
+		$resp->status = 204;
+		return $resp;
 	}
 
-	public function post()
+	public function post($request)
 	{
 		method_not_allowed('POST');
 	}

@@ -21,10 +21,12 @@ class UserList extends Resource
 		return "";
 	}
 
-	public function get()
+	public function get($request)
 	{
 		/**
-		 *      Returns the list of user URIs.
+		 *      Returns a Response with the list of user URIs.
+		 *
+		 *      @param $request - The Request we're responding to
 		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))) {
 			http_error(403, "Access denied to user list");
@@ -53,21 +55,27 @@ class UserList extends Resource
 		foreach ($result as $row) {
 			$this->rsrc_data['results'][] = User::get_url_from_mantis_id($row[0]);
 		}
-		return $this->repr();
+
+		$resp = new Response();
+		$resp->status = 200;
+		$resp->body = $this->repr();
+		return $resp;
 	}
 
-	public function put()
+	public function put($request)
 	{
 		method_not_allowed("PUT");
 	}
 
-	public function post()
+	public function post($request)
 	{
 		/**
 		 * 	Creates a new user.
 		 *
 		 * 	The user will get a confirmation email, and will have the password provided
 		 * 	in the incoming representation.
+		 *
+		 * 	@param $request - The Request we're responding to
 		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))) {
 			http_error(403, "Access denied to create user");
@@ -94,9 +102,13 @@ class UserList extends Resource
 
 		$new_user_id = user_get_id_by_name($username);
 		$new_user_url = User::get_url_from_mantis_id($new_user_id);
-		header('location',  $new_user_url);
 		$this->rsrc_data = $new_user_url;
-		return $this->repr();
+
+		$resp = new Response();
+		$resp->status = 201;
+		$resp->headers[] = "location: $new_user_url";
+		$resp->body =  $this->repr();
+		return $resp;
 	}	
 }
 ?>
