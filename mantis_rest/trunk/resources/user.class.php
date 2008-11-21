@@ -184,5 +184,10 @@ class User extends Resource
 				WHERE id = $this->user_id;";
 		db_query($query);
 	}
+
+	public function post()
+	{
+		method_not_allowed('POST');
+	}
 }
 ?>

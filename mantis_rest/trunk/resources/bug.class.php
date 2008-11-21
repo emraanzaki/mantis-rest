@@ -168,5 +168,10 @@ class Bug extends Resource
 		$this->populate_from_repr();
 		bug_update($this->bug_id, $bug_data, true);
 	}
+
+	public function post()
+	{
+		method_not_allowed('POST');
+	}
 }
 ?>

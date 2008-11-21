@@ -149,5 +149,10 @@ class Bugnote extends Resource
 		$this->populate_from_repr();
 		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));
 	}
+
+	public function post()
+	{
+		method_not_allowed('POST');
+	}
 }
 ?>

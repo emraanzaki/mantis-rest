@@ -5,7 +5,13 @@
 	function __autoload($class)
 	{
 		$class = strtolower($class);
-		require_once("resources/$class.class.php");
+
+		foreach (array("resources", "http") as $d) {
+			if (file_exists("$d/$class.class.php")) {
+				require_once("$d/$class.class.php");
+				return;
+			}
+		}
 	}
 
 	function get_config()
@@ -120,8 +126,9 @@ application/json");
 			}
 		}
 
-		abstract public function get();	# Handles a GET request for the resource
-		abstract public function put();	# Handles a PUT request
+		abstract public function get();		# Handles a GET request for the resource
+		abstract public function put();		# Handles a PUT request
+		abstract public function post();	# Handles a POST request
 	}
 
 	class RestService
@@ -129,35 +136,34 @@ application/json");
 		/**
 		 * 	A REST service.
 		 */
-		public function handle()
+		public function handle($request)
 		{
 			/**
 			 * 	Handles the resource request.
+			 *
+			 * 	@param $request - A Request object
 			 */
-			# In order to find out what kind of resource we're dealing with, we match
-			# the path part of the URL against a sequence of regexes.
-			$path = parse_url($this->url, PHP_URL_PATH);
-			if (preg_match('!/users/?$!', $path)) {
-				$resource = new UserList($this->url);
-			} elseif (preg_match('!/users/\d+/?$!', $path)) {
-				$resource = new User($this->url);
-			} elseif (preg_match('!/bugs/?$!', $path)) {
-				$resource = new BugList($this->url);
-			} elseif (preg_match('!/bugs/\d+/?$!', $path)) {
-				$resource = new Bug($this->url);
-			} elseif (preg_match('!/bugs/\d+/notes/?$!', $path)) {
-				$resource = new BugnoteList($this->url);
-			} elseif (preg_match('!/notes/\d+/?$!', $path) ||
-				   preg_match('!/bugs/\d+/notes/\d+/?$!', $path)) {
-				$resource = new Bugnote($this->url);
+			$path = $request->rsrc_path;
+			if (preg_match('!^/users/?$!', $path)) {
+				$resource = new UserList($request->url);
+			} elseif (preg_match('!^/users/\d+/?$!', $path)) {
+				$resource = new User($request->url);
+			} elseif (preg_match('!^/bugs/?$!', $path)) {
+				$resource = new BugList($request->url);
+			} elseif (preg_match('!^/bugs/\d+/?$!', $path)) {
+				$resource = new Bug($request->url);
+			} elseif (preg_match('!^/bugs/\d+/notes/?$!', $path)) {
+				$resource = new BugnoteList($request->url);
+			} elseif (preg_match('!^/notes/\d+/?$!', $path)) {
+				$resource = new Bugnote($request->url);
 			} else {
 				http_error(404, "No resource at this URL");
 			}
 
-			if ($this->method == 'GET') {
+			if ($request->method == 'GET') {
 				header('Content-type', content_type());
 				echo $resource->get();
-			} elseif ($this->method == 'PUT') {
+			} elseif ($request->method == 'PUT') {
 				$retval = $resource->put();
 				if ($retval) {
 					header('Content-type', content_type());
@@ -165,7 +171,7 @@ application/json");
 				} else {
 					header('HTTP/1.1 204');
 				}
-			} elseif ($this->method == 'POST') {
+			} elseif ($request->method == 'POST') {
 				$retval = $resource->post();
 				if ($retval) {
 					header('Content-type', content_type());
