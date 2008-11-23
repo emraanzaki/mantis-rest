@@ -15,10 +15,15 @@ class AllTests extends PHPUnit_Framework_TestSuite
 
 	function __construct()
 	{
-		$test_db = new TestDB();
-		$test_db->populate();
+		$this->test_db = new TestDB();
+		$this->test_db->populate();
 		
 		global $g_db_table_prefix;
 		$g_db_table_prefix = 'mantisrest_test';
+	}
+
+	function __destruct()
+	{
+		$this->test_db->unpopulate();
 	}
 }

@@ -11,6 +11,7 @@ class Response
 		$this->status = 200;
 		$this->headers = array();
 		$this->body = "";
+		$this->entity_content_type = "text/x-json";
 	}
 
 	public function send()
@@ -23,6 +24,7 @@ class Response
 			header($h);
 		}
 		if (!empty($this->body)) {
+			header("Content-type: $this->entity_content_type");
 			echo $this->body;
 		}
 	}

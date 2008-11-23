@@ -26,7 +26,7 @@ class resources_BugnoteTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals($resp->status, 200);
 		$this->assertEquals($resp->headers, array());
-		$this->assertEquals($resp->body, '{"bug":"http:\/\/mantis.localhost\/rest\/bugs\/1","reporter":"http:\/\/mantis.localhost\/rest\/users\/2","note":"Ring ring","private":false,"date_submitted":"2008-10-08T22:47:42-04:00","last_modified":"2008-11-18T22:39:12-05:00"}');
+		$this->assertEquals($resp->body, '{"bug":"http:\/\/mantis.localhost\/rest\/bugs\/1","reporter":"http:\/\/mantis.localhost\/rest\/users\/2","note":"Ring ring\n\n","private":false,"date_submitted":"2008-10-08T22:47:42-04:00","last_modified":"2008-11-22T23:55:25-05:00"}');
 	}
 
 	public function testGetAccessDenialByProject()
