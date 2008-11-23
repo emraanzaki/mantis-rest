@@ -77,7 +77,7 @@ class BugnoteList extends Resource
 		}
 
 		$new_note = new Bugnote;
-		$new_note->populate_from_repr();
+		$new_note->populate_from_repr($request->body);
 		$bugnote_added = bugnote_add($this->bug_id, $new_note->mantis_data['note'],
 			'0:00', $new_note->mantis_data['view_state'] == VS_PRIVATE);
 		if ($bugnote_added) {
@@ -87,6 +87,7 @@ class BugnoteList extends Resource
 			$resp = new Response();
 			$resp->headers[] = "location: $bugnote_added_url";
 			$resp->status = 201;
+			$resp->body = json_encode($bugnote_added_url);
 			return $resp;
 		} else {
 			throw new HTTPException(500, "Couldn't create bugnote");
