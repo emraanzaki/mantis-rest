@@ -232,7 +232,7 @@ SET character_set_client = @saved_cs_client;
 
 LOCK TABLES `mantisrest_test_bug_text_table` WRITE;
 /*!40000 ALTER TABLE `mantisrest_test_bug_text_table` DISABLE KEYS */;
-INSERT INTO `mantisrest_test_bug_text_table` VALUES (1,'Bitches hey','','Oh noes!  A bug!'),(2,'Fix it fix it fix it','',''),(5,'You can\'t see this, nobody!','','');
+INSERT INTO `mantisrest_test_bug_text_table` VALUES (1,'I has a description','','Oh noes!  A bug!'),(2,'Fix it fix it fix it','',''),(5,'You can\'t see this, nobody!','','');
 /*!40000 ALTER TABLE `mantisrest_test_bug_text_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -737,7 +737,7 @@ CREATE TABLE `mantisrest_test_tokens_table` (
   `value` longtext NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `idx_typeowner` (`type`,`owner`)
-) ENGINE=MyISAM AUTO_INCREMENT=46 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=47 DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -746,7 +746,7 @@ SET character_set_client = @saved_cs_client;
 
 LOCK TABLES `mantisrest_test_tokens_table` WRITE;
 /*!40000 ALTER TABLE `mantisrest_test_tokens_table` DISABLE KEYS */;
-INSERT INTO `mantisrest_test_tokens_table` VALUES (44,2,4,'2008-11-23 11:18:14','2008-11-23 11:23:14','1'),(39,2,3,'2008-11-22 22:13:33','2008-11-24 11:18:20','2,1'),(41,4,3,'2008-11-22 23:55:12','2008-11-24 11:19:11','5,1'),(43,3,3,'2008-11-23 10:37:35','2008-11-24 10:37:35','1'),(45,4,4,'2008-11-23 11:18:26','2008-11-23 11:23:26','1');
+INSERT INTO `mantisrest_test_tokens_table` VALUES (39,2,3,'2008-11-22 22:13:33','2008-11-24 11:18:20','2,1'),(41,4,3,'2008-11-22 23:55:12','2008-11-24 11:19:11','5,1'),(43,3,3,'2008-11-23 10:37:35','2008-11-24 11:54:36','1'),(46,3,4,'2008-11-23 11:54:34','2008-11-23 11:59:34','1');
 /*!40000 ALTER TABLE `mantisrest_test_tokens_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -889,7 +889,7 @@ SET character_set_client = @saved_cs_client;
 
 LOCK TABLES `mantisrest_test_user_table` WRITE;
 /*!40000 ALTER TABLE `mantisrest_test_user_table` DISABLE KEYS */;
-INSERT INTO `mantisrest_test_user_table` VALUES (1,'administrator','','root@localhost','63a9f0ea7bb98050796b649e85481845','2008-09-29 22:09:41','2008-09-29 22:18:03',0,0,90,4,0,0,'e85315c61ede369081d9677978748d4de1ff1196e603461d8bdbc959a2a05798'),(2,'dan','whatever','dan@localhost','9180b4da3f0c7e80975fad685f7f134e','2008-09-29 22:15:27','2008-11-23 11:18:20',1,0,90,24,0,0,'37a1ae17a2985588c3ffd592bbae8a411cb2de6e697b5171fb5d20affd31e176'),(3,'nobody','what','dan@localhost','6e854442cd2a940c9e95941dce4ad598','2008-10-04 16:20:14','2008-11-23 11:18:03',1,0,25,2,0,0,'25a362b154a2144bf3ffcaf2f11722c87b3ec6e67e891b183ef8e7213d5263db'),(4,'somebody','yup','dan@mantis.localhost','78b9d09661da64f0bc6c146c524bae4a','2008-10-04 22:56:53','2008-11-23 11:19:11',1,0,55,8,0,0,'af704e3bfd9c3bae5beebc2c732d7840ffab78d1f5754ffabe9b0ee9c0cfa707');
+INSERT INTO `mantisrest_test_user_table` VALUES (1,'administrator','','root@localhost','63a9f0ea7bb98050796b649e85481845','2008-09-29 22:09:41','2008-09-29 22:18:03',0,0,90,4,0,0,'e85315c61ede369081d9677978748d4de1ff1196e603461d8bdbc959a2a05798'),(2,'dan','whatever','dan@localhost','9180b4da3f0c7e80975fad685f7f134e','2008-09-29 22:15:27','2008-11-23 11:18:20',1,0,90,24,0,0,'37a1ae17a2985588c3ffd592bbae8a411cb2de6e697b5171fb5d20affd31e176'),(3,'nobody','what','dan@localhost','6e854442cd2a940c9e95941dce4ad598','2008-10-04 16:20:14','2008-11-23 11:54:36',1,0,25,3,0,0,'25a362b154a2144bf3ffcaf2f11722c87b3ec6e67e891b183ef8e7213d5263db'),(4,'somebody','yup','dan@mantis.localhost','78b9d09661da64f0bc6c146c524bae4a','2008-10-04 22:56:53','2008-11-23 11:19:11',1,0,55,8,0,0,'af704e3bfd9c3bae5beebc2c732d7840ffab78d1f5754ffabe9b0ee9c0cfa707');
 /*!40000 ALTER TABLE `mantisrest_test_user_table` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -902,4 +902,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2008-11-23 16:33:57
+-- Dump completed on 2008-11-23 17:18:59

@@ -105,7 +105,7 @@ class Bug extends Resource
 		/**
 		 * 	Populates the Bug instance based on what's in the Mantis DB.
 		 */
-		$bugdata = bug_get($this->bug_id);
+		$bugdata = bug_get($this->bug_id, TRUE);
 		foreach (Bug::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $bugdata->$a;
 		}
@@ -170,7 +170,22 @@ class Bug extends Resource
 		 *      @param $request - The HTTP request we're responding to
 		 */
 		$this->populate_from_repr($request->body);
-		bug_update($this->bug_id, $bug_data, true);
+
+		# Access checks are from Mantis's bug_update.php
+		if ( !(
+			(access_has_bug_level(access_get_status_threshold($f_new_status,
+				bug_get_field($this->bug_id, 'project_id' )), $this->bug_id )) ||
+			(access_has_bug_level(config_get('update_bug_threshold'), $this->bug_id)) ||
+			((bug_get_field($this->bug_id, 'reporter_id') ==
+				auth_get_current_user_id() ) &&
+				((ON == config_get('allow_reporter_reopen')) ||
+					( ON == config_get( 'allow_reporter_close' ))))
+			)
+		) {
+			throw new HTTPException(403, "Access denied to update bug");
+		}
+
+		bug_update($this->bug_id, $this->to_bugdata(), TRUE, TRUE);
 
 		$resp = new Response();
 		$resp->status = 204;
