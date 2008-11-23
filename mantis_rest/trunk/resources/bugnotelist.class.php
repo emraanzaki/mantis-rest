@@ -14,7 +14,7 @@ class BugnoteList extends Resource
 		if (preg_match('!/bugs/(\d+)/notes/?$!', $url, &$matches)) {
 			$this->bug_id = (int)$matches[1];
 		} else {
-			http_error(404, "Unknown note list");
+			throw new HTTPException(404, "Unknown note list");
 		}
 	}
 
@@ -31,7 +31,7 @@ class BugnoteList extends Resource
 		$user_id = auth_get_current_user_id();
 		$access_level = user_get_access_level($user_id, $project_id);
 		if (!access_has_bug_level(VIEWER, $this->bug_id)) {
-			http_error(403, "Access denied");
+			throw new HTTPException(403, "Access denied");
 		}
 
 		$notes = bugnote_get_all_visible_bugnotes($this->bug_id, $access_level,
@@ -50,7 +50,7 @@ class BugnoteList extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr();
+		$resp->body = $this->repr($request);
 		return $resp;
 	}
 
@@ -70,10 +70,10 @@ class BugnoteList extends Resource
 		 * 	@param $request - The Request we're responding to
 		 */
 		if (!access_has_bug_level(config_get('add_bugnote_threshold'), $this->bug_id)) {
-			http_error(403, "Access denied to add bugnote");
+			throw new HTTPException(403, "Access denied to add bugnote");
 		}
 		if (bug_is_readonly($this->bug_id)) {
-			http_error(500, "Cannot add a bugnote to a read-only bug");
+			throw new HTTPException(500, "Cannot add a bugnote to a read-only bug");
 		}
 
 		$new_note = new Bugnote;
@@ -89,7 +89,7 @@ class BugnoteList extends Resource
 			$resp->status = 201;
 			return $resp;
 		} else {
-			http_error(500, "Couldn't create bugnote");
+			throw new HTTPException(500, "Couldn't create bugnote");
 		}
 	}
 }

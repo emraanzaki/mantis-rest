@@ -61,7 +61,7 @@ class BugList extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr();
+		$resp->body = $this->repr($request);
 		return $resp;
 	}
 
@@ -86,7 +86,7 @@ class BugList extends Resource
 		$new_bugdata = $new_bug->to_bugdata();
 		if (!access_has_project_level(config_get('report_bug_threshold'),
 				$new_bug->project_id)) {
-			http_error(403, "Access denied to report bug");
+			throw new HTTPException(403, "Access denied to report bug");
 		}
 		$new_bug_id = bug_create($new_bugdata);
 		
@@ -97,10 +97,10 @@ class BugList extends Resource
 			$resp = new Response();
 			$resp->status = 201;
 			$resp->headers[] = "location: $new_bug_url";
-			$resp->body = $this->repr();
+			$resp->body = $this->repr($request);
 			return $resp;
 		} else {
-			http_error(500, "Failed to create bug");
+			throw new HTTPException(500, "Failed to create bug");
 		}
 	}
 }

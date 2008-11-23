@@ -23,7 +23,7 @@ class Bug extends Resource
 		if (preg_match('!/(\d+)/?$!', $url, &$matches)) {
 			return (int)$matches[1];
 		} else {
-			http_error(404, "No such bug: $matches[1]");
+			throw new HTTPException(404, "No such bug: $matches[1]");
 		}
 	}
 
@@ -69,7 +69,7 @@ class Bug extends Resource
 		} elseif (in_array($attr_name, Bug::$mantis_attrs)) {
 			return $this->rsrc_data[$attr_name];
 		} else {
-			http_error(415, "Unknown resource attribute: $attr_name");
+			throw new HTTPException(415, "Unknown resource attribute: $attr_name");
 		}
 	}
 
@@ -150,16 +150,16 @@ class Bug extends Resource
 		 *      @param $request - The HTTP request we're responding to
 		 */
 		if (!bug_exists($this->bug_id)) {
-			http_error(404, "No such bug: $this->bug_id");
+			throw new HTTPException(404, "No such bug: $this->bug_id");
 		}
 		if (!access_has_bug_level(VIEWER, $this->bug_id)) {
-			http_error(403, "Permission denied");
+			throw new HTTPException(403, "Permission denied");
 		}
 		$this->populate_from_db();
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr();
+		$resp->body = $this->repr($request);
 		return $resp;
 	}
 

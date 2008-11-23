@@ -29,7 +29,7 @@ class UserList extends Resource
 		 *      @param $request - The Request we're responding to
 		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))) {
-			http_error(403, "Access denied to user list");
+			throw new HTTPException(403, "Access denied to user list");
 		}
 
 		$conditions = array();
@@ -58,7 +58,7 @@ class UserList extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr();
+		$resp->body = $this->repr($request);
 		return $resp;
 	}
 
@@ -78,7 +78,7 @@ class UserList extends Resource
 		 * 	@param $request - The Request we're responding to
 		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))) {
-			http_error(403, "Access denied to create user");
+			throw new HTTPException(403, "Access denied to create user");
 		}
 
 		$new_user = new User;
@@ -93,9 +93,9 @@ class UserList extends Resource
 		$realname = $new_user->mantis_data['realname'];
 
 		if (!user_is_name_valid($username)) {
-			http_error(500, "Invalid username");
+			throw new HTTPException(500, "Invalid username");
 		} elseif (!user_is_realname_valid($realname)) {
-			http_error(500, "Invalid realname");
+			throw new HTTPException(500, "Invalid realname");
 		}
 		user_create($username, $password, $email, $access_level, $protected, $enabled,
 			$realname);
@@ -107,7 +107,7 @@ class UserList extends Resource
 		$resp = new Response();
 		$resp->status = 201;
 		$resp->headers[] = "location: $new_user_url";
-		$resp->body =  $this->repr();
+		$resp->body =  $this->repr($request);
 		return $resp;
 	}	
 }

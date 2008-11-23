@@ -24,7 +24,7 @@ class User extends Resource
 		if (preg_match('!/(\d+)!', $url, &$matches)) {
 			return $matches[1];
 		} else {
-			http_error(404, "Unknown user '$matches[1]'");
+			throw new HTTPException(404, "Unknown user '$matches[1]'");
 		}
 	}
 
@@ -48,7 +48,7 @@ class User extends Resource
 		} elseif (in_array($attr_name, User::$mantis_attrs)) {
 			return ($this->rsrc_data[$attr_name]);
 		} else {
-			http_error(415, "Unknown resource attribute: $attr_name");
+			throw new HTTPException(415, "Unknown resource attribute: $attr_name");
 		}
 	}
 
@@ -127,13 +127,13 @@ class User extends Resource
 		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))
 				&& auth_get_current_user_id() != $this->user_id) {
-			http_error(403, "Access denied to user $this->user_id's info");
+			throw new HTTPException(403, "Access denied to user $this->user_id's info");
 		}
 		$this->populate_from_db();
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr();
+		$resp->body = $this->repr($request);
 		return $resp;
 	}
 
@@ -146,7 +146,8 @@ class User extends Resource
 		 */
 		if (!access_has_global_level(config_get('manage_user_threshold'))
 				&& auth_get_current_user_id() != $this->user_id) {
-			http_error(403, "Access denied to edit user $this->user_id's info");
+			throw new HTTPException(403,
+				"Access denied to edit user $this->user_id's info");
 		}
 		$this->populate_from_repr();
 

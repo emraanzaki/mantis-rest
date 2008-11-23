@@ -24,7 +24,7 @@ class Bugnote extends Resource
 		if (preg_match('!/(\d+)/?$!', $url, &$matches)) {
 			return (int)$matches[1];
 		} else {
-			http_error(404, "No resource at $url");
+			throw new HTTPException(404, "No resource at $url");
 		}
 	}
 
@@ -55,7 +55,7 @@ class Bugnote extends Resource
 		} elseif (in_array($attr_name, Bugnote::$rsrc_attrs)) {
 			return $this->mantis_data[$attr_name];
 		} else {
-			http_error(415, "Unknown resource attribute: $attr_name");
+			throw new HTTPException(415, "Unknown resource attribute: $attr_name");
 		}
 	}
 
@@ -117,16 +117,16 @@ class Bugnote extends Resource
 		 *      @param $request - The request we're responding to
 		 */
 		if (!bugnote_exists($this->note_id)) {
-			http_error(404, "No such bug note: $this->note_id");
+			throw new HTTPException(404, "No such bug note: $this->note_id");
 		}
 		if (!access_has_bugnote_level(VIEWER, $this->note_id)) {
-			http_error(403, "Access denied");
+			throw new HTTPException(403, "Access denied");
 		}
 		$this->populate_from_db();
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr();
+		$resp->body = $this->repr($request);
 		return $resp;
 	}
 
@@ -140,7 +140,7 @@ class Bugnote extends Resource
 		 *      @param $request - The request we're responding to
 		 */
 		if (!bugnote_exists($this->note_id)) {
-			http_error(404, "No such bug note: $this->note_id");
+			throw new HTTPException(404, "No such bug note: $this->note_id");
 		}
 		# Check if the current user is allowed to edit the bugnote
 		# (This comes from Mantis's bugnote_update.php)
@@ -151,11 +151,11 @@ class Bugnote extends Resource
 				(OFF == config_get('bugnote_allow_user_edit_delete'))) {
 			if (!access_has_bugnote_level(
 					config_get('update_bugnote_threshold'), $this->note_id)) {
-				http_error(403, "Access denied");
+				throw new HTTPException(403, "Access denied");
 			}
 		}
 		if (bug_is_readonly($bug_id)) {
-			http_error(500, "Can't edit a note on a read-only bug");
+			throw new HTTPException(500, "Can't edit a note on a read-only bug");
 		}
 		$this->populate_from_repr();
 		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));

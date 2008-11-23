@@ -1,13 +1,13 @@
 <?php
-	require_once "mantis_rest_core.php";
+require_once "mantis_rest_core.php";
 
-	$request = new Request();
-	$request->populate_from_server();
-	if (!auth_attempt_script_login($request->username, $request->password)) {
-		header('WWW-Authenticate: Basic realm="Mantis REST API"');
-		http_error(401, "Invalid credentials");
-	}
+$request = new Request();
+$request->populate_from_server();
 
-	$service = new RestService();
-	$service->handle($request);
-?>
+$service = new RestService();
+try {
+	$resp = $service->handle($request);
+	$resp->send();
+} catch (HTTPException $e) {
+	$e->resp->send();
+}

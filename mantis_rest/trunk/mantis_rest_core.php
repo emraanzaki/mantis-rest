@@ -20,13 +20,6 @@
 		return $config;
 	}
 
-	function http_error($code, $message)
-	{
-		header("HTTP/1.1 $code");
-		echo $message . "\n";
-		exit;
-	}
-
 	function method_not_allowed($method, $allowed)
 	{
 		/**
@@ -37,27 +30,8 @@
 		 * 	@param $method - The method that's not allowed
 		 * 	@param $allowed - An array containing the methods that are allowed
 		 */
-		header("allow: " . implode(", ", $allowed));
-		http_error(405, "The method $method can't be used on this resource");
-	}
-
-	function content_type()
-	{
-		/**
-		 *	Returns the content type we'll return, throwing an HTTP error if we can't.
-		 */
-		$headers = getallheaders();
-		$type = array_key_exists('Accept', $headers)
-						? $headers['Accept']
-						: 'text/x-json';
-		if ($type == 'text/x-json' || $type == 'application/json') {
-			return $type;
-		} else {
-			http_error(406, "Unacceptable content type: $type.  This resource is available in the following content types:
-
-text/x-json
-application/json");
-		}
+		throw new HTTPException(405, "The method $method can't be used on this resource",
+			array("allow: " . implode(", ", $allowed)));
 	}
 
 	function get_string_to_enum($enum_string, $string)
@@ -113,25 +87,42 @@ application/json");
 
 	function handle_error($errno, $errstr)
 	{
-		http_error(500, "Mantis encountered an error: " . error_string($errstr));
+		throw new HTTPException(500, "Mantis encountered an error: " . error_string($errstr));
+		$resp->send();
+		exit;
 	}
 	set_error_handler("handle_error", E_USER_ERROR);
+
+	class HTTPException extends Exception
+	{
+		function __construct($status, $message, $headers=NULL)
+		{
+			$this->resp = new Response();
+			$this->resp->status = $status;
+			$this->resp->body = $message;
+			if (!is_null($headers)) {
+				$this->resp->headers = $headers;
+			}
+		}
+	}
 
 	abstract class Resource
 	{
 		/**
 		 * 	A REST resource; the abstract for all resources we serve.
 		 */
-		protected function repr()
+		protected function repr($request)
 		{
 			/**
 			 * 	Returns a representation of resource.
 			 *
-			 * 	@param $type - string - The mime type desired
+			 * 	@param $request - The request we're answering
 			 */
-			$type = content_type();
+			$type = $request->type_expected;
 			if ($type == 'text/x-json' || $type == 'application/json') {
 				return json_encode($this->rsrc_data);
+			} else {
+				return '';
 			}
 		}
 
@@ -151,7 +142,14 @@ application/json");
 			 * 	Handles the resource request.
 			 *
 			 * 	@param $request - A Request object
+			 * 	@param $return_response - If given, we return the Response object
+			 * 		instead of sending it.
 			 */
+			if (!auth_attempt_script_login($request->username, $request->password)) {
+				throw new HTTPException(401, "Invalid credentials", array(
+					'WWW-Authenticate: Basic realm="Mantis REST API"'));
+			}
+
 			$path = $request->rsrc_path;
 			if (preg_match('!^/users/?$!', $path)) {
 				$resource = new UserList($request->url);
@@ -166,10 +164,9 @@ application/json");
 			} elseif (preg_match('!^/notes/\d+/?$!', $path)) {
 				$resource = new Bugnote($request->url);
 			} else {
-				http_error(404, "No resource at this URL");
+				throw new HTTPException(404, "No resource at this URL");
 			}
 
-			header('Content-type', content_type());
 			if ($request->method == 'GET') {
 				$resp = $resource->get($request);
 			} elseif ($request->method == 'PUT') {
@@ -177,10 +174,9 @@ application/json");
 			} elseif ($request->method == 'POST') {
 				$resp = $resource->post($request);
 			} else {
-				http_error(501, "Unrecognized method: $request->method");
+				throw new HTTPException(501, "Unrecognized method: $request->method");
 			}
 
-			$resp->send();
+			return $resp;
 		}
 	}
-?>
