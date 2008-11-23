@@ -114,15 +114,14 @@ class Bug extends Resource
 		}
 	}
 
-	public function populate_from_repr()
+	public function populate_from_repr($repr)
 	{
 		/**
 		 * 	Populates the Bug instance based on an incoming representation.
 		 *
 		 * 	No validation is performed on the incoming data.
 		 */
-		$new_rep = file_get_contents('php://input');
-		$this->rsrc_data = json_decode($new_rep, TRUE);
+		$this->rsrc_data = json_decode($repr, TRUE);
 		foreach (Bug::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
 		}
@@ -170,7 +169,7 @@ class Bug extends Resource
 		 *
 		 *      @param $request - The HTTP request we're responding to
 		 */
-		$this->populate_from_repr();
+		$this->populate_from_repr($request->body);
 		bug_update($this->bug_id, $bug_data, true);
 
 		$resp = new Response();

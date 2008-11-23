@@ -99,10 +99,9 @@ class Bugnote extends Resource
 		}
 	}
 
-	public function populate_from_repr()
+	public function populate_from_repr($repr)
 	{
-		$new_rep = file_get_contents('php://input');
-		$new_data = json_decode($new_rep, TRUE);
+		$new_data = json_decode($repr, TRUE);
 		$this->rsrc_data = $new_data;
 		foreach (Bugnote::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
@@ -157,7 +156,7 @@ class Bugnote extends Resource
 		if (bug_is_readonly($bug_id)) {
 			throw new HTTPException(500, "Can't edit a note on a read-only bug");
 		}
-		$this->populate_from_repr();
+		$this->populate_from_repr($request->body);
 		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));
 
 		$resp = new Response();

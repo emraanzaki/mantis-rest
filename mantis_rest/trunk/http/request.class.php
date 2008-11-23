@@ -4,13 +4,14 @@ class Request
 	/**
 	 *	An HTTP request.
 	 */
-	public function populate($url, $method, $username, $password, $type_expected='text/x-json')
+	public function populate($url, $method, $username, $password, $body=NULL, $type_expected='text/x-json')
 	{
 		$this->url = $url;
 		$this->method = $method;
 		$this->username = $username;
 		$this->password = $password;
 		$this->type_expected = $type_expected;
+		$this->body = $body;
 
 		$this->_extrapolate_from_url();
 	}
@@ -24,6 +25,7 @@ class Request
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->username = $_SERVER['PHP_AUTH_USER'];
 		$this->password = $_SERVER['PHP_AUTH_PW'];
+		$this->body = file_get_contents('php://input');
 
 		$this->_extrapolate_from_url();
 

@@ -106,13 +106,12 @@ class User extends Resource
 		}
 	}
 
-	public function populate_from_repr()
+	public function populate_from_repr($repr)
 	{
 		/**
 		 * 	Populates the instance from the representation in the request body.
 		 */
-		$new_repr = file_get_contents('php://input');
-		$this->rsrc_data = json_decode($new_repr, TRUE);
+		$this->rsrc_data = json_decode($repr, TRUE);
 		foreach (User::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
 		}
@@ -149,7 +148,7 @@ class User extends Resource
 			throw new HTTPException(403,
 				"Access denied to edit user $this->user_id's info");
 		}
-		$this->populate_from_repr();
+		$this->populate_from_repr($request->body);
 
 		# Do some validation on the inputs (from Mantis's user_create())
 		$username = db_prepare_string($this->rsrc_data['username']);
