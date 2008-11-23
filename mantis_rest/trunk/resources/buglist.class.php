@@ -53,10 +53,12 @@ class BugList extends Resource
 		$query .= ";";
 
 		$result = db_query($query);
-		$row = db_fetch_array($result);
 		$this->rsrc_data['results'] = array();
 		foreach ($result as $row) {
-			$this->rsrc_data['results'][] = Bug::get_url_from_mantis_id($row[0]);
+			if (access_has_bug_level(VIEWER, $row[0])) {
+				$this->rsrc_data['results'][] =
+					Bug::get_url_from_mantis_id($row[0]);
+			}
 		}
 
 		$resp = new Response();
