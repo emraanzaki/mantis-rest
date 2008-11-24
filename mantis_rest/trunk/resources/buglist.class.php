@@ -10,7 +10,7 @@ class BugList extends Resource
 		$this->rsrc_data = array();
 	}
 
-	private function _get_query_condition($key, $value)
+	protected function _get_query_condition($key, $value)
 	{
 		if ($key == 'handler') {
 			return "b.handler_id = " . ($value ?
@@ -26,6 +26,39 @@ class BugList extends Resource
 				$value);
 		}
 		return "";
+	}
+
+	protected function _get_query_order($key, $value=1)
+	{
+		/**
+		 * 	Returns an ORDER BY argument, given an argument from the query string.
+		 *
+		 * 	The return value of this function goes right after an 'ORDER BY', so it
+		 * 	might be 'b.reporter ASC' or 'u.date_created DESC'.
+		 *
+		 * 	@param $key - The resource attribute on which the request says to sort.  For
+		 * 		example, if the QS parameter is 'sort-priority', $key here will be
+		 * 		'priority'.
+		 * 	@param $value - The sense of the sort; 1 for ascending, -1 for descending.
+		 */
+		if ($key == 'handler' or $key == 'reporter' or $key == 'duplicate') {
+			$key .= '_id';
+		} elseif ($key == 'private') {
+			$key = 'view_state';
+		} elseif (in_array($key, Bug::$mantis_attrs)) {
+			$key = mysql_escape_string($key);
+		} else {
+			throw new HTTPException(500, "Can't sort by unknown attribute '$key'");
+		}
+		$sql = "b.$key";
+
+		if ($value == 1) {
+			$sql .= ' ASC';
+		} elseif ($value == -1) {
+			$sql .= ' DESC';
+		}
+
+		return $sql;
 	}
 
 	public function get($request)
@@ -44,41 +77,25 @@ class BugList extends Resource
 		$custom_filter = filter_get_default();
 		$rows = filter_get_bug_rows($page_num, $per_page, $page_count, $bug_count,
 			$custom_filter);
-		$bug_ids = array();
+		$visible_bug_ids = array();
 		foreach ($rows as $r) {
-			$bug_ids[] = $r[0];
+			$visible_bug_ids[] = $r[0];
 		}
 
 		# Now we construct a query to figure out which of these bugs matches the conditions
-		# we got from the query string.
-		$qs_pairs = array();
-		parse_str($request->query, $qs_pairs);
-		if ($qs_pairs) {
-			$conditions = array();
-			foreach ($qs_pairs as $k => $v) {
-				$condition = $this->_get_query_condition($k, $v);
-				if ($condition) {
-					$conditions[] = $condition;
-				}
-			}
+		# we got from the query string, and order them correctly.
+		$sql_to_add = $this->_build_sql_from_querystring($request->query);
 
-			$mantis_bug_table = config_get('mantis_bug_table');
-			$query = "SELECT b.id FROM $mantis_bug_table b";
-			if ($conditions) {
-				$query .= " WHERE (";
-				$query .= implode(") AND (", $conditions);
-				$query .= ")";
-			}
-			$query .= ';';
+		$mantis_bug_table = config_get('mantis_bug_table');
+		$query = "SELECT b.id FROM $mantis_bug_table b $sql_to_add;";
 
-			$result = db_query($query);
-			$matching_rows = db_fetch_array($result);
-			$matching_bug_ids = array();
-			foreach ($matching_rows as $r) {
-				$matching_bug_ids[] = $r[0];
+		$result = db_query($query);
+		$bug_ids = array();
+		# This loop takes care of both the filtering and the sorting.
+		foreach ($result as $r) {
+			if (in_array($r[0], $visible_bug_ids)) {
+				$bug_ids[] = $r[0];
 			}
-
-			$bug_ids = array_intersect($bug_ids, $matching_bug_ids);
 		}
 
 		$this->rsrc_data['results'] = array();

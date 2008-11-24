@@ -58,6 +58,52 @@ class resources_BugListTest extends ResourceTest
 		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/bugs\/1"]}');
 	}
 
+	public function testGetSortingByQuerystring()
+	{
+		/**
+		 * 	Tests that sorting the result by query string works.
+		 */
+
+		# Sort by priority descending.
+		$this->request->populate('http://mantis.localhost/rest/bugs?sort-priority=-1',
+			'GET',
+			'dan',
+			'dan');
+		$resp = $this->service->handle($this->request);
+		$this->assertEquals($resp->status, 200);
+		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/bugs\/2","http:\/\/mantis.localhost\/rest\/bugs\/1","http:\/\/mantis.localhost\/rest\/bugs\/5"]}');
+
+		# Sort by reporter asending.
+		$this->request->populate('http://mantis.localhost/rest/bugs?sort-reporter',
+			'GET',
+			'dan',
+			'dan');
+		$resp = $this->service->handle($this->request);
+		$this->assertEquals($resp->status, 200);
+		$new_rsrc = json_decode($resp->body, TRUE);
+		$this->assertEquals(count($new_rsrc['results']), 3);
+		$this->assertEquals($new_rsrc['results'][2], 'http://mantis.localhost/rest/bugs/5');
+	}
+
+	public function testGetSortingByInvalidAttr()
+	{
+		/**
+		 * 	Tests that sorting by an unknown attribute fails.
+		 */
+		$this->request->populate('http://mantis.localhost/rest/bugs?sort-fhgwhgds=-1',
+			'GET',
+			'dan',
+			'dan');
+		try {
+			$resp = $this->service->handle($this->request);
+		} catch (HTTPException $e) {
+			$this->assertEquals($e->resp->status, 500);
+			return;
+		}
+
+		$this->fail('No exception when sort should have failed');
+	}
+
 	public function testPostBasic()
 	{
 		/**

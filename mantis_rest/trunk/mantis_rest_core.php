@@ -111,7 +111,7 @@
 		/**
 		 * 	A REST resource; the abstract for all resources we serve.
 		 */
-		protected function repr($request)
+		public function repr($request)
 		{
 			/**
 			 * 	Returns a representation of resource.
@@ -124,6 +124,63 @@
 			} else {
 				return '';
 			}
+		}
+
+		protected function _build_sql_from_querystring($qs)
+		{
+			/**
+			 * 	Returns a string of SQL to tailor a query to the given query string.
+			 *
+			 * 	Resource lists use this function to filter, order, and limit their
+			 * 	result sets.  It calls $this->_get_query_condition() and
+			 * 	$this->_get_query_sort(), so both must exist.
+			 *
+			 * 	@param $qs - The query string
+			 */
+			$qs_pairs = array();
+			parse_str($qs, $qs_pairs);
+
+			$filter_pairs = array();
+			$sort_pairs = array();
+			$limit = 0;
+			foreach ($qs_pairs as $k => $v) {
+				if (strpos($k, 'sort-') === 0) {
+					$sort_pairs[$k] = $v;
+				} elseif ($k == 'limit') {
+					$limit = (int)$v;
+				} else {
+					$filter_pairs[$k] = $v;
+				}
+			}
+
+			$conditions = array();
+			$orders = array();
+			$limit_statement = "";
+			foreach ($filter_pairs as $k => $v) {
+				$conditions[] = $this->_get_query_condition($k, $v);
+			}
+			foreach ($sort_pairs as $k => $v) {
+				$k = substr($k, 5);	# Strip off the 'sort-'
+				$orders[] = $this->_get_query_order($k, $v);
+			}
+			if ($limit) {
+				$limit_statement = "LIMIT $limit";
+			}
+
+			$sql = "";
+			if ($conditions) {
+				$sql .= ' WHERE (';
+				$sql .= implode(') AND (', $conditions);
+				$sql .= ')';
+			}
+			if ($orders) {
+				$sql .= ' ORDER BY ';
+				$sql .= implode(', ', $orders);
+			}
+			if ($limit) {
+				$sql .= " LIMIT $limit";
+			}
+			return $sql;
 		}
 
 		abstract public function get($request);	# Handles a GET request for the resource
