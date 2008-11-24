@@ -33,7 +33,8 @@ class UserList extends Resource
 		}
 
 		$conditions = array();
-		foreach ($_GET as $k => $v) {
+		parse_str($request->query, $qs_pairs);
+		foreach ($qs_pairs as $k => $v) {
 			$condition = $this->_get_query_condition($k, $v);
 			if ($condition) {
 				$conditions[] = $condition;
@@ -82,7 +83,7 @@ class UserList extends Resource
 		}
 
 		$new_user = new User;
-		$new_user->populate_from_repr();
+		$new_user->populate_from_repr($request->body);
 
 		$username = $new_user->mantis_data['username'];
 		$password = $new_user->mantis_data['password'];

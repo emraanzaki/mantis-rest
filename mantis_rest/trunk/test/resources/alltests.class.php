@@ -5,6 +5,7 @@ require_once 'test/resources/buglisttest.class.php';
 require_once 'test/resources/bugnotetest.class.php';
 require_once 'test/resources/bugnotelisttest.class.php';
 require_once 'test/resources/usertest.class.php';
+require_once 'test/resources/userlisttest.class.php';
 
 class resources_AllTests
 {
@@ -16,6 +17,7 @@ class resources_AllTests
 		$suite->addTestSuite('resources_BugnoteTest');
 		$suite->addTestSuite('resources_BugnoteListTest');
 		$suite->addTestSuite('resources_UserTest');
+		$suite->addTestSuite('resources_UserListTest');
 		return $suite;
 	}
 }
