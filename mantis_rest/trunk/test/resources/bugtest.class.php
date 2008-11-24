@@ -1,18 +1,8 @@
 <?php
-class resources_BugTest extends PHPUnit_Framework_TestCase
+require_once 'test/resourcetest.class.php';
+
+class resources_BugTest extends ResourceTest
 {
-	public function setUp()
-	{
-		$this->request = new Request();
-		$this->service = new RestService();
-	}
-
-	public function tearDown()
-	{
-		unset($this->request);
-		unset($this->service);
-	}
-
 	public function testGetBasic()
 	{
 		/**

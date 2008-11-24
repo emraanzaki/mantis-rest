@@ -35,30 +35,55 @@ class BugList extends Resource
 		 *
 		 *      @param $request - The Request we're responding to
 		 */
-		$conditions = array();
-		foreach ($_GET as $k => $v) {
-			$condition = $this->_get_query_condition($k, $v);
-			if ($condition) {
-				$conditions[] = $condition;
+
+		# First we use Mantis's filter API to get all the bugs visible to the user.
+		$page_num = 1;
+		$per_page = 0;
+		$page_count = 0;
+		$bug_count = 0;
+		$custom_filter = filter_get_default();
+		$rows = filter_get_bug_rows($page_num, $per_page, $page_count, $bug_count,
+			$custom_filter);
+		$bug_ids = array();
+		foreach ($rows as $r) {
+			$bug_ids[] = $r[0];
+		}
+
+		# Now we construct a query to figure out which of these bugs matches the conditions
+		# we got from the query string.
+		$qs_pairs = array();
+		parse_str($request->query, $qs_pairs);
+		if ($qs_pairs) {
+			$conditions = array();
+			foreach ($qs_pairs as $k => $v) {
+				$condition = $this->_get_query_condition($k, $v);
+				if ($condition) {
+					$conditions[] = $condition;
+				}
 			}
+
+			$mantis_bug_table = config_get('mantis_bug_table');
+			$query = "SELECT b.id FROM $mantis_bug_table b";
+			if ($conditions) {
+				$query .= " WHERE (";
+				$query .= implode(") AND (", $conditions);
+				$query .= ")";
+			}
+			$query .= ';';
+
+			$result = db_query($query);
+			$matching_rows = db_fetch_array($result);
+			$matching_bug_ids = array();
+			foreach ($matching_rows as $r) {
+				$matching_bug_ids[] = $r[0];
+			}
+
+			$bug_ids = array_intersect($bug_ids, $matching_bug_ids);
 		}
 
-		$bug_table = config_get('mantis_bug_table');
-		$query = "SELECT b.id
-			  FROM $bug_table b";
-		if ($conditions) {
-			$query .= " WHERE ";
-			$query .= implode(" AND ", $conditions);
-		}
-		$query .= ";";
-
-		$result = db_query($query);
 		$this->rsrc_data['results'] = array();
-		foreach ($result as $row) {
-			if (access_has_bug_level(VIEWER, $row[0])) {
-				$this->rsrc_data['results'][] =
-					Bug::get_url_from_mantis_id($row[0]);
-			}
+		foreach ($bug_ids as $id) {
+			$this->rsrc_data['results'][] = Bug::get_url_from_mantis_id($id);
 		}
 
 		$resp = new Response();
@@ -84,10 +109,10 @@ class BugList extends Resource
 		 */
 		# This is all copied from Mantis's bug_report.php.
 		$new_bug = new Bug;
-		$new_bug->populate_from_repr();
+		$new_bug->populate_from_repr($request->body);
 		$new_bugdata = $new_bug->to_bugdata();
 		if (!access_has_project_level(config_get('report_bug_threshold'),
-				$new_bug->project_id)) {
+				$new_bugdata->project_id)) {
 			throw new HTTPException(403, "Access denied to report bug");
 		}
 		$new_bug_id = bug_create($new_bugdata);
