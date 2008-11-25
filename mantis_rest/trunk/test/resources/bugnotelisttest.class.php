@@ -16,7 +16,7 @@ class resources_BugnoteListTest extends ResourceTest
 
 		$this->assertEquals($resp->status, 200);
 		$this->assertEquals($resp->headers, array());
-		$this->assertEquals($resp->body, '["http:\/\/mantis.localhost\/rest\/notes\/1","http:\/\/mantis.localhost\/rest\/notes\/6","http:\/\/mantis.localhost\/rest\/notes\/8"]');
+		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/notes\/1","http:\/\/mantis.localhost\/rest\/notes\/6","http:\/\/mantis.localhost\/rest\/notes\/8","http:\/\/mantis.localhost\/rest\/notes\/10"]}');
 	}
 
 	public function testGetAccessDenialByBug()
@@ -54,7 +54,7 @@ class resources_BugnoteListTest extends ResourceTest
 
 		$resp = $this->service->handle($this->request);
 		$this->assertEquals($resp->status, 200);
-		$this->assertEquals($resp->body, '["http:\/\/mantis.localhost\/rest\/notes\/1","http:\/\/mantis.localhost\/rest\/notes\/6"]');
+		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/notes\/1","http:\/\/mantis.localhost\/rest\/notes\/6","http:\/\/mantis.localhost\/rest\/notes\/10"]}');
 	}
 
 	public function testGetFilteringByQuerystring()
@@ -62,6 +62,29 @@ class resources_BugnoteListTest extends ResourceTest
 		/**
 		 * 	Tests that filtering result by query-string works correctly.
 		 */
+		$this->request->populate('http://mantis.localhost/rest/bugs/1/notes?reporter=http:%2F%2Fmantis.localhost%2Frest%2Fusers%2F4',
+			'GET',
+			'dan',
+			'dan');
+
+		$resp = $this->service->handle($this->request);
+		$this->assertEquals($resp->status, 200);
+		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/notes\/10"]}');
+	}
+
+	public function testGetSortingByQuerystring()
+	{
+		/**
+		 * 	Tests that sorting result by query-string works correctly.
+		 */
+		$this->request->populate('http://mantis.localhost/rest/bugs/1/notes?sort-last_modified=-1',
+			'GET',
+			'dan',
+			'dan');
+
+		$resp = $this->service->handle($this->request);
+		$this->assertEquals($resp->status, 200);
+		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/notes\/10","http:\/\/mantis.localhost\/rest\/notes\/1","http:\/\/mantis.localhost\/rest\/notes\/8","http:\/\/mantis.localhost\/rest\/notes\/6"]}');
 	}
 
 	public function testPost()

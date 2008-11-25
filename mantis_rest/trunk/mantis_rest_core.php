@@ -148,6 +148,10 @@
 					$sort_pairs[$k] = $v;
 				} elseif ($k == 'limit') {
 					$limit = (int)$v;
+					if ($limit < 0) {
+						throw new HTTPException(500,
+							"Result limit must be nonnegative.");
+					}
 				} else {
 					$filter_pairs[$k] = $v;
 				}
@@ -157,7 +161,10 @@
 			$orders = array();
 			$limit_statement = "";
 			foreach ($filter_pairs as $k => $v) {
-				$conditions[] = $this->_get_query_condition($k, $v);
+				$condition = $this->_get_query_condition($k, $v);
+				if ($condition) {
+					$conditions[] = $condition;
+				}
 			}
 			foreach ($sort_pairs as $k => $v) {
 				$k = substr($k, 5);	# Strip off the 'sort-'

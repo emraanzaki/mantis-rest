@@ -8,7 +8,7 @@ class ResourceTest extends PHPUnit_Framework_TestCase
 
 		$test_db = new TestDB();
 		$test_db->populate();
-		
+
 		global $g_db_table_prefix;
 		$this->old_db_table_prefix = $g_db_table_prefix;
 		$g_db_table_prefix = $test_db->table_prefix;
