@@ -9,16 +9,40 @@ class UserList extends Resource
 		$this->rsrc_data = array();
 	}
 
-	private function _get_query_condition($key, $value)
+	protected function _get_query_condition($key, $value)
 	{
-		if ($key == 'username') {
-			if (user_is_name_valid($value)) {
-				return "u.username = '$value'";
-			} else {
-				return "1 = 0";
-			}
+		if ($key == 'access_level') {
+			$value = get_string_to_enum(
+				config_get('access_levels_enum_string'), $value);
+			return "u.$key = $value";
+		} elseif ($key == 'enabled' || $key == 'protected') {
+			$value = ON;
+			return "u.$key = $value";
+		} elseif (in_array($key, explode(' ', 'username realname email'))) {
+			$value = mysql_escape_string($value);
+			return "u.$key = '$value'";
+		} else {
+			throw new HTTPException(500, "Can't filter users by attribute '$key'");
 		}
-		return "";
+	}
+
+	protected function _get_query_order($key, $value)
+	{
+		if (!in_array($key, array('username', 'realname', 'email', 'date_created',
+			'last_visit', 'access_level', 'login_count', 'lost_password_request_count',
+			'failed_login_count'))) {
+				throw new HTTPException(500,
+					"Can't sort users by attribute '$key'");
+		}
+		$sql = "u.$key";
+
+		if ($value == 1) {
+			$sql .= ' ASC';
+		} elseif ($value == -1) {
+			$sql .= ' DESC';
+		}
+
+		return $sql;
 	}
 
 	public function get($request)
@@ -32,23 +56,20 @@ class UserList extends Resource
 			throw new HTTPException(403, "Access denied to user list");
 		}
 
-		$conditions = array();
+		$sql_to_add = $this->_build_sql_from_querystring($request->query);
+/*		$conditions = array();
 		parse_str($request->query, $qs_pairs);
 		foreach ($qs_pairs as $k => $v) {
 			$condition = $this->_get_query_condition($k, $v);
 			if ($condition) {
 				$conditions[] = $condition;
 			}
-		}
+		} */
 
 		$user_table = config_get('mantis_user_table');
 		$query = "SELECT u.id
-			  FROM $user_table u";
-		if ($conditions) {
-			$query .= " WHERE ";
-			$query .= implode(" AND ", $conditions);
-		}
-		$query .= ";";
+			FROM $user_table u
+			$sql_to_add;";
 
 		$result = db_query($query);
 		$row = db_fetch_array($result);

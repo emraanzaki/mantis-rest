@@ -59,6 +59,28 @@ class resources_UserListTest extends ResourceTest
 		$resp = $this->service->handle($this->request);
 		$this->assertEquals($resp->status, 200);
 		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/users\/4"]}');
+
+		$this->request->populate('http://mantis.localhost/rest/users?access_level=administrator',
+			'GET',
+			'dan',
+			'dan');
+		$resp = $this->service->handle($this->request);
+		$this->assertEquals($resp->status, 200);
+		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/users\/1","http:\/\/mantis.localhost\/rest\/users\/2"]}');
+	}
+
+	public function testGetSortingByQuerystring()
+	{
+		/**
+		 * 	Tests that sorting a result with a quesry string works.
+		 */
+		$this->request->populate('http://mantis.localhost/rest/users?sort-access_level&sort-username=-1',
+			'GET',
+			'dan',
+			'dan');
+		$resp = $this->service->handle($this->request);
+		$this->assertEquals($resp->status, 200);
+		$this->assertEquals($resp->body, '{"results":["http:\/\/mantis.localhost\/rest\/users\/3","http:\/\/mantis.localhost\/rest\/users\/4","http:\/\/mantis.localhost\/rest\/users\/2","http:\/\/mantis.localhost\/rest\/users\/1"]}');
 	}
 
 	public function testPostBasic()
