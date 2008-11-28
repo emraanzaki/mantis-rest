@@ -6,7 +6,7 @@ class Bugnote extends Resource
 	 */
 	public static $mantis_attrs = array('bug_id', 'reporter_id', 'note', 'view_state',
 					    'date_submitted', 'last_modified');
-	public static $rsrc_attrs = array('bug', 'reporter', 'note', 'private', 'date_submitted',
+	public static $rsrc_attrs = array('bug', 'reporter', 'text', 'private', 'date_submitted',
 	       				  'last_modified');
 
 	static function get_url_from_mantis_id($id)
@@ -52,6 +52,8 @@ class Bugnote extends Resource
 			return ($this->mantis_data['view_state'] == VS_PRIVATE);
 		} elseif ($attr_name == 'date_submitted' || $attr_name == 'last_modified') {
 			return date_to_iso_date($this->mantis_data[$attr_name]);
+		} elseif ($attr_name == 'text') {
+			return $this->mantis_data['note'];
 		} elseif (in_array($attr_name, Bugnote::$rsrc_attrs)) {
 			return $this->mantis_data[$attr_name];
 		} else {
@@ -67,6 +69,10 @@ class Bugnote extends Resource
 			return User::get_mantis_id_from_url($this->rsrc_data['reporter']);
 		} elseif ($attr_name == 'view_state') {
 			return ($this->rsrc_data['private'] ? VS_PRIVATE : VS_PUBLIC);
+		} elseif ($attr_name == 'date_submitted' || $attr_name == 'last_modified') {
+			return date_to_sql_date($this->rsrc_data[$attr_name]);
+		} elseif ($attr_name == 'note') {
+			return $this->rsrc_data['text'];
 		} elseif (in_array($attr_name, Bugnote::$mantis_attrs)) {
 			return $this->rsrc_data[$attr_name];
 		}

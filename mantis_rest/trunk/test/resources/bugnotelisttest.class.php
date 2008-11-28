@@ -96,7 +96,7 @@ class resources_BugnoteListTest extends ResourceTest
 			'POST',
 			'dan',
 			'dan',
-			$body='{"bug":"http:\/\/mantis.localhost\/rest\/bugs\/2","reporter":"http:\/\/mantis.localhost\/rest\/users\/2","note":"New note.  Check out this note.","private":false,"date_submitted":"2008-11-22T22:15:04-05:00","last_modified":"2008-11-22T22:15:04-05:00"}');
+			$body='{"bug":"http:\/\/mantis.localhost\/rest\/bugs\/2","reporter":"http:\/\/mantis.localhost\/rest\/users\/2","text":"New note.  Check out this note.","private":false,"date_submitted":"2008-11-22T22:15:04-05:00","last_modified":"2008-11-22T22:15:04-05:00"}');
 		$resp = $this->service->handle($this->request);
 		$this->assertEquals($resp->status, 201);
 		foreach ($resp->headers as $h) {
@@ -114,7 +114,7 @@ class resources_BugnoteListTest extends ResourceTest
 		$resp = $this->service->handle($this->request);
 		$new_note = json_decode($resp->body, TRUE);
 		$this->assertEquals($new_note['bug'], 'http://mantis.localhost/rest/bugs/2');
-		$this->assertEquals($new_note['note'], 'New note.  Check out this note.');
+		$this->assertEquals($new_note['text'], 'New note.  Check out this note.');
 	}
 
 	public function testPostAccessDenial()
@@ -126,7 +126,7 @@ class resources_BugnoteListTest extends ResourceTest
 			'POST',
 			'nobody',
 			'nobody',
-			$body='{"bug":"http:\/\/mantis.localhost\/rest\/bugs\/2","reporter":"http:\/\/mantis.localhost\/rest\/users\/2","note":"We want this note to be denied.","private":true,"date_submitted":"2008-11-22T22:15:04-05:00","last_modified":"2008-11-22T22:15:04-05:00"}');
+			$body='{"bug":"http:\/\/mantis.localhost\/rest\/bugs\/2","reporter":"http:\/\/mantis.localhost\/rest\/users\/2","text":"We want this note to be denied.","private":true,"date_submitted":"2008-11-22T22:15:04-05:00","last_modified":"2008-11-22T22:15:04-05:00"}');
 		try {
 			$resp = $this->service->handle($this->request);
 		} catch (HTTPException $e) {
