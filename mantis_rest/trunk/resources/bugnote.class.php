@@ -140,7 +140,7 @@ class Bugnote extends Resource
 		/**
 		 * 	Updates the note.
 		 *
-		 * 	Only the text of the note can be altered.
+		 * 	Only the text and view state of the note can be altered.
 		 *
 		 *      @param $request - The request we're responding to
 		 */
@@ -163,6 +163,7 @@ class Bugnote extends Resource
 			throw new HTTPException(500, "Can't edit a note on a read-only bug");
 		}
 		$this->populate_from_repr($request->body);
+		bugnote_set_view_state($this->note_id, !!$this->_get_rsrc_attr('private'));
 		bugnote_set_text($this->note_id, $this->_get_mantis_attr('note'));
 
 		$resp = new Response();
@@ -175,4 +176,3 @@ class Bugnote extends Resource
 		method_not_allowed('POST', array("GET", "PUT"));
 	}
 }
-?>
