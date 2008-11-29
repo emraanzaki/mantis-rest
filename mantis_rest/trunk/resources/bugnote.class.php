@@ -42,7 +42,7 @@ class Bugnote extends Resource
 		$this->rsrc_data = array();
 	}
 
-	private function _get_rsrc_attr($attr_name)
+	protected function _get_rsrc_attr($attr_name)
 	{
 		if ($attr_name == 'bug') {
 			return Bug::get_url_from_mantis_id($this->mantis_data['bug_id']);
@@ -61,7 +61,7 @@ class Bugnote extends Resource
 		}
 	}
 
-	private function _get_mantis_attr($attr_name)
+	protected function _get_mantis_attr($attr_name)
 	{
 		if ($attr_name == 'bug_id') {
 			return Bug::get_mantis_id_from_url($this->rsrc_data['bug']);
@@ -131,7 +131,7 @@ class Bugnote extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr($request);
+		$resp->body = $this->_repr($request);
 		return $resp;
 	}
 
@@ -169,10 +169,5 @@ class Bugnote extends Resource
 		$resp = new Response();
 		$resp->status = 204;
 		return $resp;
-	}
-
-	public function post($request)
-	{
-		method_not_allowed('POST', array("GET", "PUT"));
 	}
 }

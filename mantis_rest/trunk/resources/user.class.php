@@ -8,7 +8,7 @@ class User extends Resource
 		'date_created', 'last_visit', 'enabled', 'protected', 'access_level', 'login_count',
 		'lost_password_request_count', 'failed_login_count');
 
-	static function get_url_from_mantis_id($user_id)
+	public static function get_url_from_mantis_id($user_id)
 	{
 		/**
 		 *      Returns the URL for the resource corresponding to the user with the
@@ -18,7 +18,7 @@ class User extends Resource
 		return $config['paths']['api_url'] . "/users/$user_id";
 	}
 
-	static function get_mantis_id_from_url($url)
+	public static function get_mantis_id_from_url($url)
 	{
 		$matches = array();
 		if (preg_match('!/(\d+)!', $url, &$matches)) {
@@ -36,7 +36,7 @@ class User extends Resource
 		$this->rsrc_data = array();
 	}
 
-	private function _get_mantis_attr($attr_name)
+	protected function _get_mantis_attr($attr_name)
 	{
 		if ($attr_name == 'enabled' || $attr_name == 'protected') {
 			return $this->rsrc_data[$attr_name] ? 1 : 0;
@@ -52,7 +52,7 @@ class User extends Resource
 		}
 	}
 
-	private function _get_rsrc_attr($attr_name)
+	protected function _get_rsrc_attr($attr_name)
 	{
 		if ($attr_name == 'password') {
 			return '********';
@@ -132,7 +132,7 @@ class User extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr($request);
+		$resp->body = $this->_repr($request);
 		return $resp;
 	}
 
@@ -198,11 +198,6 @@ class User extends Resource
 		$resp = new Response();
 		$resp->status = 204;
 		return $resp;
-	}
-
-	public function post($request)
-	{
-		method_not_allowed('POST', array("GET", "PUT"));
 	}
 }
 ?>

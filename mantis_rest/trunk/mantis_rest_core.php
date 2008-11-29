@@ -7,7 +7,10 @@
 		$class = strtolower($class);
 
 		foreach (array("resources", "http") as $d) {
-			if (file_exists("$d/$class.class.php")) {
+			if (file_exists("$d/$class.abstract.php")) {
+				require_once("$d/$class.abstract.php");
+				return;
+			} elseif (file_exists("$d/$class.class.php")) {
 				require_once("$d/$class.class.php");
 				return;
 			}
@@ -104,95 +107,6 @@
 				$this->resp->headers = $headers;
 			}
 		}
-	}
-
-	abstract class Resource
-	{
-		/**
-		 * 	A REST resource; the abstract for all resources we serve.
-		 */
-		public function repr($request)
-		{
-			/**
-			 * 	Returns a representation of resource.
-			 *
-			 * 	@param $request - The request we're answering
-			 */
-			$type = $request->type_expected;
-			if ($type == 'text/x-json' || $type == 'application/json') {
-				return json_encode($this->rsrc_data);
-			} else {
-				return '';
-			}
-		}
-
-		protected function _build_sql_from_querystring($qs)
-		{
-			/**
-			 * 	Returns a string of SQL to tailor a query to the given query string.
-			 *
-			 * 	Resource lists use this function to filter, order, and limit their
-			 * 	result sets.  It calls $this->_get_query_condition() and
-			 * 	$this->_get_query_sort(), so both must exist.
-			 *
-			 * 	@param $qs - The query string
-			 */
-			$qs_pairs = array();
-			parse_str($qs, $qs_pairs);
-
-			$filter_pairs = array();
-			$sort_pairs = array();
-			$limit = 0;
-			foreach ($qs_pairs as $k => $v) {
-				if (strpos($k, 'sort-') === 0) {
-					$sort_pairs[$k] = $v;
-				} elseif ($k == 'limit') {
-					$limit = (int)$v;
-					if ($limit < 0) {
-						throw new HTTPException(500,
-							"Result limit must be nonnegative.");
-					}
-				} else {
-					$filter_pairs[$k] = $v;
-				}
-			}
-
-			$conditions = array();
-			$orders = array();
-			$limit_statement = "";
-			foreach ($filter_pairs as $k => $v) {
-				$condition = $this->_get_query_condition($k, $v);
-				if ($condition) {
-					$conditions[] = $condition;
-				}
-			}
-			foreach ($sort_pairs as $k => $v) {
-				$k = substr($k, 5);	# Strip off the 'sort-'
-				$orders[] = $this->_get_query_order($k, $v);
-			}
-			if ($limit) {
-				$limit_statement = "LIMIT $limit";
-			}
-
-			$sql = "";
-			if ($conditions) {
-				$sql .= ' WHERE (';
-				$sql .= implode(') AND (', $conditions);
-				$sql .= ')';
-			}
-			if ($orders) {
-				$sql .= ' ORDER BY ';
-				$sql .= implode(', ', $orders);
-			}
-			if ($limit) {
-				$sql .= " LIMIT $limit";
-			}
-			return $sql;
-		}
-
-		abstract public function get($request);	# Handles a GET request for the resource
-		abstract public function put($request);	# Handles a PUT request
-		abstract public function post($request);# Handles a POST request
 	}
 
 	class RestService

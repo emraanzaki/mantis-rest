@@ -1,5 +1,5 @@
 <?php
-class BugList extends Resource
+class BugList extends ResourceList
 {
 	/**
 	 *      A list of Mantis bugs.
@@ -28,7 +28,7 @@ class BugList extends Resource
 		return NULL;
 	}
 
-	protected function _get_query_order($key, $value=1)
+	protected function _get_query_order($key, $value)
 	{
 		/**
 		 * 	Returns an ORDER BY argument, given an argument from the query string.
@@ -108,13 +108,8 @@ class BugList extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr($request);
+		$resp->body = $this->_repr($request);
 		return $resp;
-	}
-
-	public function put($request)
-	{
-		method_not_allowed("PUT", array("GET", "POST"));
 	}
 
 	public function post($request)
@@ -144,11 +139,10 @@ class BugList extends Resource
 			$resp = new Response();
 			$resp->status = 201;
 			$resp->headers[] = "location: $new_bug_url";
-			$resp->body = $this->repr($request);
+			$resp->body = $this->_repr($request);
 			return $resp;
 		} else {
 			throw new HTTPException(500, "Failed to create bug");
 		}
 	}
 }
-?>

@@ -1,5 +1,5 @@
 <?php
-class UserList extends Resource
+class UserList extends ResourceList
 {
 	function __construct($url)
 	{
@@ -80,13 +80,8 @@ class UserList extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr($request);
+		$resp->body = $this->_repr($request);
 		return $resp;
-	}
-
-	public function put($request)
-	{
-		method_not_allowed("PUT", array("GET", "POST"));
 	}
 
 	public function post($request)
@@ -129,7 +124,7 @@ class UserList extends Resource
 		$resp = new Response();
 		$resp->status = 201;
 		$resp->headers[] = "location: $new_user_url";
-		$resp->body =  $this->repr($request);
+		$resp->body =  $this->_repr($request);
 		return $resp;
 	}	
 }

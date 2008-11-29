@@ -4,20 +4,20 @@ class Bug extends Resource
 	/**
 	 *      A Mantis bug.
 	 */
-	static public $mantis_attrs = array('project_id', 'reporter_id', 'handler_id',
+	public static $mantis_attrs = array('project_id', 'reporter_id', 'handler_id',
 		'duplicate_id', 'priority', 'severity', 'reproducibility', 'status', 'resolution',
 		'projection', 'category', 'date_submitted', 'last_updated', 'eta', 'os', 'os_build',
 		'platform', 'version', 'fixed_in_version', 'target_version', 'build', 'view_state',
 		'summary', 'profile_id', 'description', 'steps_to_reproduce',
 		'additional_information');
 
-	static public $rsrc_attrs = array('project_id', 'reporter', 'handler', 'duplicate',
+	public static $rsrc_attrs = array('project_id', 'reporter', 'handler', 'duplicate',
 		'priority', 'severity', 'reproducibility', 'status', 'resolution', 'projection',
 		'category', 'date_submitted', 'last_updated', 'eta', 'os', 'os_build', 'platform',
 		'version', 'fixed_in_version', 'target_version', 'build', 'private', 'summary',
 		'profile_id', 'description', 'steps_to_reproduce', 'additional_information');
 
-	static function get_mantis_id_from_url($url)
+	public static function get_mantis_id_from_url($url)
 	{
 		$matches = array();
 		if (preg_match('!/(\d+)/?$!', $url, &$matches)) {
@@ -27,7 +27,7 @@ class Bug extends Resource
 		}
 	}
 
-	static function get_url_from_mantis_id($bug_id)
+	public static function get_url_from_mantis_id($bug_id)
 	{
 		$config = get_config();
 		return $config['paths']['api_url'] . "/bugs/$bug_id";
@@ -46,7 +46,7 @@ class Bug extends Resource
 		$this->rsrc_data = array();
 	}
 
-	private function _get_mantis_attr($attr_name)
+	protected function _get_mantis_attr($attr_name)
 	{
 		if ($attr_name == 'reporter_id') {
 			return User::get_mantis_id_from_url($this->rsrc_data['reporter']);
@@ -73,7 +73,7 @@ class Bug extends Resource
 		}
 	}
 
-	private function _get_rsrc_attr($attr_name)
+	protected function _get_rsrc_attr($attr_name)
 	{
 		if ($attr_name == 'reporter') {
 			return User::get_url_from_mantis_id($this->mantis_data['reporter_id']);
@@ -158,7 +158,7 @@ class Bug extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr($request);
+		$resp->body = $this->_repr($request);
 		return $resp;
 	}
 
@@ -190,11 +190,6 @@ class Bug extends Resource
 		$resp = new Response();
 		$resp->status = 204;
 		return $resp;
-	}
-
-	public function post($request)
-	{
-		method_not_allowed('POST', array('GET', 'PUT'));
 	}
 }
 ?>

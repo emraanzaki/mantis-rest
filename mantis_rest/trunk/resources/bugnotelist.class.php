@@ -1,5 +1,5 @@
 <?php
-class BugnoteList extends Resource
+class BugnoteList extends ResourceList
 {
 	/**
 	 *      A list of bug notes.
@@ -34,7 +34,7 @@ class BugnoteList extends Resource
 		return NULL;
 	}
 
-	protected function _get_query_order($key, $value=1)
+	protected function _get_query_order($key, $value)
 	{
 		/**
 		 * 	Returns an ORDER BY argument, given an argument from the query string.
@@ -115,13 +115,8 @@ class BugnoteList extends Resource
 
 		$resp = new Response();
 		$resp->status = 200;
-		$resp->body = $this->repr($request);
+		$resp->body = $this->_repr($request);
 		return $resp;
-	}
-
-	public function put($request)
-	{
-		method_not_allowed("PUT", array("GET", "POST"));
 	}
 
 	public function post($request)
