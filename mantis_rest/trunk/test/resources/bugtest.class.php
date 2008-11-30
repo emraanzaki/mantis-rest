@@ -1,5 +1,5 @@
 <?php
-require_once 'test/resourcetest.class.php';
+require_once 'test/resourcetest.abstract.php';
 
 class resources_BugTest extends ResourceTest
 {
