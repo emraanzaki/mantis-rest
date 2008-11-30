@@ -4,18 +4,20 @@ class BugnoteList extends ResourceList
 	/**
 	 *      A list of bug notes.
 	 */
-	function __construct($url) {
+	public static function get_bug_id_from_url($url)
+	{
+		$matches = array();
+		if (preg_match('!/(\d+)/notes/?!', $url, $matches)) {
+			return $matches[1];
+		}
+	}
+
+	function __construct() {
 		/**
 		 *      Constructs the list.
-		 *
-		 *      @param $url - The URL with which this resource was requested
 		 */
-		$matches = array();
-		if (preg_match('!/bugs/(\d+)/notes/?!', $url, &$matches)) {
-			$this->bug_id = (int)$matches[1];
-		} else {
-			throw new HTTPException(404, "Unknown note list");
-		}
+		$this->mantis_data = array();
+		$this->rsrc_data = array();
 	}
 
 	protected function _get_query_condition($key, $value)
@@ -74,6 +76,7 @@ class BugnoteList extends ResourceList
 		 *
 		 *      @param $request - The Request we're responding to
 		 */
+		$this->bug_id = BugnoteList::get_bug_id_from_url($request->url);
 		# Access checking and note gathering is based on Mantis's
 		# email_build_visible_bug_data().
 		$project_id = bug_get_field($this->bug_id, 'project_id');
@@ -129,6 +132,7 @@ class BugnoteList extends ResourceList
 		 *
 		 * 	@param $request - The Request we're responding to
 		 */
+		$this->bug_id = BugnoteList::get_bug_id_from_url($request->url);
 		if (!access_has_bug_level(config_get('add_bugnote_threshold'), $this->bug_id)) {
 			throw new HTTPException(403, "Access denied to add bugnote");
 		}

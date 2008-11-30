@@ -112,7 +112,7 @@
 	class RestService
 	{
 		/**
-		 * 	A REST service.
+		 * 	Our REST service.
 		 */
 		public function handle($request)
 		{
@@ -130,17 +130,17 @@
 
 			$path = $request->rsrc_path;
 			if (preg_match('!^/users/?$!', $path)) {
-				$resource = new UserList($request->url);
+				$resource = new UserList();
 			} elseif (preg_match('!^/users/\d+/?$!', $path)) {
-				$resource = new User($request->url);
+				$resource = new User();
 			} elseif (preg_match('!^/bugs/?$!', $path)) {
-				$resource = new BugList($request->url);
+				$resource = new BugList();
 			} elseif (preg_match('!^/bugs/\d+/?$!', $path)) {
-				$resource = new Bug($request->url);
+				$resource = new Bug();
 			} elseif (preg_match('!^/bugs/\d+/notes/?$!', $path)) {
 				$resource = new BugnoteList($request->url);
 			} elseif (preg_match('!^/notes/\d+/?$!', $path)) {
-				$resource = new Bugnote($request->url);
+				$resource = new Bugnote();
 			} else {
 				throw new HTTPException(404, "No resource at this URL");
 			}

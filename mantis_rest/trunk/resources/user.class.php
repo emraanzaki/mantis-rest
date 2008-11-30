@@ -28,10 +28,8 @@ class User extends Resource
 		}
 	}
 
-	function __construct($url='http://localhost/users/0')
+	function __construct()
 	{
-		$this->user_id = User::get_mantis_id_from_url($url);
-
 		$this->mantis_data = array();
 		$this->rsrc_data = array();
 	}
@@ -136,6 +134,7 @@ class User extends Resource
 		 *
 		 *      @param $request - The Request we're responding to
 		 */
+		$this->user_id = User::get_mantis_id_from_url($request->url);
 		if (!access_has_global_level(config_get('manage_user_threshold'))
 				&& auth_get_current_user_id() != $this->user_id) {
 			throw new HTTPException(403, "Access denied to user $this->user_id's info");
@@ -155,6 +154,7 @@ class User extends Resource
 		 *
 		 *      @param $request - The Request we're responding to
 		 */
+		$this->user_id = User::get_mantis_id_from_url($request->url);
 		if (!access_has_global_level(config_get('manage_user_threshold'))
 				&& auth_get_current_user_id() != $this->user_id) {
 			throw new HTTPException(403,

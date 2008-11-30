@@ -28,16 +28,11 @@ class Bugnote extends Resource
 		}
 	}
 
-	function __construct($url = 'http://localhost/notes/0')
+	function __construct()
 	{
 		/**
 		 *      Constructs the note.
-		 *
-		 *      @param $url - The URL with which this resource was requested
 		 */
-		$matches = array();
-		$this->note_id = Bugnote::get_mantis_id_from_url($url);
-
 		$this->mantis_data = array();
 		$this->rsrc_data = array();
 	}
@@ -135,6 +130,7 @@ class Bugnote extends Resource
 		 *
 		 *      @param $request - The request we're responding to
 		 */
+		$this->note_id = Bugnote::get_mantis_id_from_url($request->url);
 		if (!bugnote_exists($this->note_id)) {
 			throw new HTTPException(404, "No such bug note: $this->note_id");
 		}
@@ -158,6 +154,7 @@ class Bugnote extends Resource
 		 *
 		 *      @param $request - The request we're responding to
 		 */
+		$this->note_id = Bugnote::get_mantis_id_from_url($request->url);
 		if (!bugnote_exists($this->note_id)) {
 			throw new HTTPException(404, "No such bug note: $this->note_id");
 		}

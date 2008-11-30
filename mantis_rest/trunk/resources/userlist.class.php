@@ -1,10 +1,9 @@
 <?php
 class UserList extends ResourceList
 {
-	function __construct($url)
+	function __construct()
 	{
 		$config = get_config();
-		$this->canonical_url = $config['paths']['api_url'] . '/users';
 		$this->mantis_data = array();
 		$this->rsrc_data = array();
 	}

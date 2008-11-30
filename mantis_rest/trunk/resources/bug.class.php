@@ -33,15 +33,11 @@ class Bug extends Resource
 		return $config['paths']['api_url'] . "/bugs/$bug_id";
 	}
 
-	function __construct($url='http://localhost/bugs/0')
+	function __construct()
 	{
 		/**
 		 *      Constructs the bug.
-		 *
-		 *      @param $url - The URL with which this resource was requested
 		 */
-		$this->bug_id = Bug::get_mantis_id_from_url($url);
-
 		$this->mantis_data = array();
 		$this->rsrc_data = array();
 	}
@@ -156,6 +152,7 @@ class Bug extends Resource
 		 *
 		 *      @param $request - The HTTP request we're responding to
 		 */
+		$this->bug_id = Bug::get_mantis_id_from_url($request->url);
 		if (!bug_exists($this->bug_id)) {
 			throw new HTTPException(404, "No such bug: $this->bug_id");
 		}
@@ -177,6 +174,7 @@ class Bug extends Resource
 		 *
 		 *      @param $request - The HTTP request we're responding to
 		 */
+		$this->bug_id = Bug::get_mantis_id_from_url($request->url);
 		$this->populate_from_repr($request->body);
 
 		# Access checks are from Mantis's bug_update.php
