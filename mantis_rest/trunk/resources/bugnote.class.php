@@ -107,8 +107,22 @@ class Bugnote extends Resource
 
 	public function populate_from_repr($repr)
 	{
-		$new_data = json_decode($repr, TRUE);
-		$this->rsrc_data = $new_data;
+		/**
+		 * 	Given a representation of a bugnote, populates the Bugnote instance.
+		 *
+		 * 	If the incoming array doesn't have all the keys in $mantis_attrs, or if
+		 * 	it's not an array at all, we throw a 415.
+		 */
+		$this->rsrc_data = json_decode($repr, TRUE);
+		if (!is_array($this->rsrc_data)) {
+			throw new HTTPException(415, "Incoming representation not an array");
+		}
+		$diff = array_diff(Bugnote::$rsrc_attrs, array_keys($this->rsrc_data));
+		if ($diff) {
+			throw new HTTPException(415, "Incoming note representation missing keys: " .
+				implode(', ', $diff));
+		}
+
 		foreach (Bugnote::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
 		}

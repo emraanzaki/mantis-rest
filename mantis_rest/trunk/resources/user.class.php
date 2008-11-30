@@ -110,8 +110,20 @@ class User extends Resource
 	{
 		/**
 		 * 	Populates the instance from the representation in the request body.
+		 *
+		 * 	If the incoming array doesn't have all the keys in $mantis_attrs, or if
+		 * 	it's not an array at all, we throw a 415.
 		 */
 		$this->rsrc_data = json_decode($repr, TRUE);
+		if (!is_array($this->rsrc_data)) {
+			throw new HTTPException(415, "Incoming representation not an array");
+		}
+		$diff = array_diff(User::$rsrc_attrs, array_keys($this->rsrc_data));
+		if ($diff) {
+			throw new HTTPException(415, "Incoming user representation missing keys: " .
+				implode(', ', $diff));
+		}
+
 		foreach (User::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
 		}

@@ -1,5 +1,5 @@
 <?php
-class ResourceTest extends PHPUnit_Framework_TestCase
+abstract class ResourceTest extends PHPUnit_Framework_TestCase
 {
 	public function setUp()
 	{

@@ -68,8 +68,6 @@ class Bug extends Resource
 			return $this->rsrc_data['private'] ? VS_PRIVATE : VS_PUBLIC;
 		} elseif (in_array($attr_name, Bug::$mantis_attrs)) {
 			return $this->rsrc_data[$attr_name];
-		} else {
-			throw new HTTPException(415, "Unknown resource attribute: $attr_name");
 		}
 	}
 
@@ -119,9 +117,19 @@ class Bug extends Resource
 		/**
 		 * 	Populates the Bug instance based on an incoming representation.
 		 *
-		 * 	No validation is performed on the incoming data.
+		 * 	If the incoming array doesn't have all the keys in $mantis_attrs, or if
+		 * 	it's not an array at all, we throw a 415.
 		 */
 		$this->rsrc_data = json_decode($repr, TRUE);
+		if (!is_array($this->rsrc_data)) {
+			throw new HTTPException(415, "Incoming representation not an array");
+		}
+		$diff = array_diff(Bug::$rsrc_attrs, array_keys($this->rsrc_data));
+		if ($diff) {
+			throw new HTTPException(415, "Incoming Bug representation missing keys: " .
+				implode(', ', $diff));
+		}
+
 		foreach (Bug::$mantis_attrs as $a) {
 			$this->mantis_data[$a] = $this->_get_mantis_attr($a);
 		}
