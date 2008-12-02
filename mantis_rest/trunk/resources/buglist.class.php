@@ -131,6 +131,7 @@ class BugList extends ResourceList
 			throw new HTTPException(403, "Access denied to report bug");
 		}
 		$new_bug_id = bug_create($new_bugdata);
+		email_new_bug($new_bug_id);
 		
 		if ($new_bug_id) {
 			$new_bug_url = Bug::get_url_from_mantis_id($new_bug_id);

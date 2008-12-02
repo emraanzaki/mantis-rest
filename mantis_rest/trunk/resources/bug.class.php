@@ -191,11 +191,10 @@ class Bug extends Resource
 			throw new HTTPException(403, "Access denied to update bug");
 		}
 
-		bug_update($this->bug_id, $this->to_bugdata(), TRUE, TRUE);
+		bug_update($this->bug_id, $this->to_bugdata(), TRUE);
 
 		$resp = new Response();
 		$resp->status = 204;
 		return $resp;
 	}
 }
-?>
