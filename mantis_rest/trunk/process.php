@@ -1,5 +1,5 @@
 <?php
-require_once "mantis_rest_core.php";
+require_once 'init.php';
 
 $request = new Request();
 $request->populate_from_server();
