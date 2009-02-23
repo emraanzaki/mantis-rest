@@ -24,6 +24,8 @@ class BugList extends ResourceList
 					'status', 'resolution', 'projection', 'eta'))) {
 			return "b.$key = " . get_string_to_enum(config_get($key."_enum_string"),
 				$value);
+		} elseif ($key == "project_id") {
+			return "b.project_id = " . (int)$value;
 		}
 		return NULL;
 	}
@@ -69,36 +71,23 @@ class BugList extends ResourceList
 		 *      @param $request - The Request we're responding to
 		 */
 
-		# First we use Mantis's filter API to get all the bugs visible to the user.
-		$page_num = 1;
-		$per_page = 0;
-		$page_count = 0;
-		$bug_count = 0;
-		$custom_filter = filter_get_default();
-		$rows = filter_get_bug_rows($page_num, $per_page, $page_count, $bug_count,
-			$custom_filter);
-		$visible_bug_ids = array();
-		foreach ($rows as $r) {
-			$visible_bug_ids[] = $r[0];
-		}
+		$visible_project_ids = user_get_accessible_projects(
+			auth_get_current_user_id(), TRUE);
 
 		# Now we construct a query to figure out which of these bugs matches the conditions
 		# we got from the query string, and order them correctly.
 		$sql_to_add = $this->_build_sql_from_querystring($request->query);
 		$bug_ids = array();
-		if ($sql_to_add) {
-			$mantis_bug_table = config_get('mantis_bug_table');
-			$query = "SELECT b.id FROM $mantis_bug_table b $sql_to_add;";
 
-			$result = db_query($query);
-			# This loop takes care of both the filtering and the sorting.
-			foreach ($result as $r) {
-				if (in_array($r[0], $visible_bug_ids)) {
-					$bug_ids[] = $r[0];
-				}
+		$mantis_bug_table = config_get('mantis_bug_table');
+		$query = "SELECT b.id, b.project_id FROM $mantis_bug_table b $sql_to_add;";
+
+		$result = db_query($query);
+		# This loop takes care of both the filtering and the sorting.
+		foreach ($result as $r) {
+			if (in_array($r[1], $visible_project_ids)) {
+				$bug_ids[] = $r[0];
 			}
-		} else {
-			$bug_ids = $visible_bug_ids;
 		}
 
 		$this->rsrc_data['results'] = array();

@@ -56,7 +56,7 @@ application/json");
 
 		$config = get_config();
 		$api_loc = $config['paths']['api_location'];
-		if (strpos($this->path, $api_loc) == 0) {
+		if (empty($api_loc) || strpos($this->path, $api_loc) == 0) {
 			$this->rsrc_path = str_replace($api_loc, '', $this->path);
 		} else {
 			throw new HTTPException(500, "Requested path not inside API");
