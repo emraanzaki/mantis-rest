@@ -1,4 +1,4 @@
-= User Tutorial =
+4= User Tutorial =
 
 MantisREST lets you interface with the [http://mantisbt.org Mantis Bug Tracker] through simple HTTP requests.  Common items in Mantis, such as bugs, bugnotes, and users, have a URL by which you can access them through the API.  For example, if you've set up your installation such that `http://mantisrest.example.com/` is the root, then the URL for bug 57 would be `http://mantisrest.example.com/bugs/57`, and the URL for your user account might be `http://mantisrest.example.com/users/7`.
 
@@ -60,10 +60,10 @@ MantisREST requires you to have the username and password of a Mantis user, and 
 We use HTTP's authentication scheme to authenticate users.  This basically sends your password in plaintext over the network, so if you're using MantisREST over the Internets, you should ''always'' encrypt your traffic (using HTTPS, for instance).
 
 HTTP authentication is easy to use.  All you have to do is include an "Authorization" header with your request.  Here's how you construct the value of that header:
- 1. Put your username, then a colon, then your password into a string.
- 2. Base-64 encode that string.
- 3. Set the value of the header to the word "Basic", followed by a space, followed by that base-64 string.
- 4. Create a header with the key "Authorization", and set its value to the string you came up with in step 3.
+ # Put your username, then a colon, then your password into a string.
+ # Base-64 encode that string.
+ # Set the value of the header to the word "Basic", followed by a space, followed by that base-64 string.
+ # Create a header with the key "Authorization", and set its value to the string you came up with in step 3.
 Your header will end up something like this:
 
 {{{
