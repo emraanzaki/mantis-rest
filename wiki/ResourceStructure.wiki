@@ -1,6 +1,6 @@
 = Resource Structure =
 
-A class representing a type of resource, such as '''Bug''', '''User''', or '''BugNote''', should follow some conventions:
+A class representing a type of resource, such as '''Bug''', '''User''', or '''Bugnote''', should follow some conventions:
 
 == Static Methods ==
 
