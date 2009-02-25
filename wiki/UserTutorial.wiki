@@ -131,11 +131,11 @@ Well, MantisREST lets you specify a query string with the URL of a resource list
 In a similar way, you can sort resource lists; as the key part of the key-value pair you use "sort-" followed by a resource key (such as a bug's `last_modified` key).  A GET request for `http://mantisrest.example.com/users?sort-access_level` would give you all the user URLs in the system, sorted by the users' access levels.  If you specify a value for a sort parameter, and it's -1, then the results will be sorted descending instead of ascending.
 
 Here are some examples of ways you might sort and filter resource lists:
- `/bugs?priority=normal&reporter=http:%2F%2Fmantisrest.example.com%2Fusers%2F71`::
+ `/bugs?priority=normal&reporter=http:%2F%2Fmantisrest.example.com%2Fusers%2F71`
     All bugs with normal priority, reported by the user whose URL is `http://mantisrest.example.com/users/71`
- `/users?sort-access_level&sort-email=-1`::
+ `/users?sort-access_level&sort-email=-1`
     All users in the system, sorted by access level and then by email address descending
- `/bugs/9897/notes?limit=5`::
+ `/bugs/9897/notes?limit=5`
     The first 5 notes attached to bug 9897
 
 Some keys are filterable, some are sortable, some are both, and some are neither.  Check the wiki page for the resource you're messing with to find out which are which.
