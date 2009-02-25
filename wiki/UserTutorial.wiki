@@ -1,4 +1,4 @@
-4= User Tutorial =
+= User Tutorial =
 
 MantisREST lets you interface with the [http://mantisbt.org Mantis Bug Tracker] through simple HTTP requests.  Common items in Mantis, such as bugs, bugnotes, and users, have a URL by which you can access them through the API.  For example, if you've set up your installation such that `http://mantisrest.example.com/` is the root, then the URL for bug 57 would be `http://mantisrest.example.com/bugs/57`, and the URL for your user account might be `http://mantisrest.example.com/users/7`.
 
