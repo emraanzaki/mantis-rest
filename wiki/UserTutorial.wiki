@@ -49,9 +49,12 @@ Maybe this table will clear it up a bit:
 HTTP requests and responses may contain headers, which are just strings of the from "Key: Value".  Request headers help the server interpret the request and choose an appropriate response, and response headers give the client information about the response.  Header keys are case insensitive.
 
 The HTTP definition lays out some standard headers, a few of which you should be familiar with for MantisREST:
- `Accept`:: A request header telling the server what format you'd like your response in.  For example, if you'd like an XML representation, you'd send a request with the header "`Accept: text/xml`".
- `Content-type`:: A response header that tells the client what format the response body is in, such as "`content-type: text/x-json`".
- `Authorization`:: A request header that authenticates you to the server with a username/password combination.  More on that in the next section.
+  `Accept`
+    A request header telling the server what format you'd like your response in.  For example, if you'd like an XML representation, you'd send a request with the header "`Accept: text/xml`".
+  `Content-type`
+    A response header that tells the client what format the response body is in, such as "`content-type: text/x-json`".
+  `Authorization`
+    A request header that authenticates you to the server with a username/password combination.  More on that in the next section.
 
 == Authentication And Authorization ==
 
