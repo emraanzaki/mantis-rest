@@ -1,0 +1,1 @@
+This project provides a RESTful API for Mantis (http://mantisbt.org), allowing you to script all sorts of useful procedures.  Bugs, bugnotes, and users are presented as resources, and you can filter and sort them to your heart's content.
